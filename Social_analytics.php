@@ -161,7 +161,7 @@ class Social_analytics extends Memcached_DataObject
         $gc->avg_followers_day  = 0;
 
         if(!$target_month) {
-            $target_month = new DateTime();
+            $target_month = new DateTime('first day of this month');
         }
         else {
             $target_month = new DateTime($target_month . '-01');
