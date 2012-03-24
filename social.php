@@ -126,66 +126,41 @@ class SocialAction extends Action
         }
 
         $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
-        $this->element('h3', null, _m('Posts per day'));
+//        $this->element('h3', null, _m('Posts per day'));
 
         $this->elementStart('table', array('class' => 'social_stats notices'));
-        $this->element('caption', null, 'Posts per day');
+//        $this->element('caption', null, 'Posts per day');
+
+        $this->elementStart('tr');
+        $this->element('td');
+        $this->element('th', null, 'Notices'); // TODO: Trans
+        $this->element('th', null, 'Following');
+        $this->element('th', null, 'Followers');
+        $this->elementEnd('tr');
 
         // Date iterator
         $i_date = clone($this->gc->month);
-
-        // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
-        while($i_date->format('m') == $this->gc->month->format('m')) {
-            $this->elementStart('tr');
-            $this->element('th', null, $i_date->format('Y-m-d'));
-            $this->element('td', null, intval($this->gc->arr_notices[$i_date->format('Y-m-d')])); // intval change null into zeros for postless days
-            $this->elementEnd('tr');
-            $i_date->modify('+1 day');
-        }
-        $this->elementEnd('table');
-
-        $this->element('h3', null, _m('Following trend'));
-
-        // FIXME: Duplicate code. Merge this and the above (object agnostic)
-        $this->elementStart('table', array('class' => 'social_stats following'));
-        $this->element('caption', null, 'Posts per day');
-
-        // Date iterator
-        $i_date = clone($this->gc->month);
-
-        // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
         $ttl_following = $this->gc->ttl_following;
-        while($i_date->format('m') == $this->gc->month->format('m')) {
-            $ttl_following += intval($this->gc->arr_following[$i_date->format('Y-m-d')]);
-            $this->elementStart('tr');
-            $this->element('th', null, $i_date->format('Y-m-d'));
-            $this->element('td', null, $ttl_following); // intval change null into zeros for postless days
-            $this->elementEnd('tr');
-            $i_date->modify('+1 day');
-        }
-        $this->elementEnd('table');
-
-
-        $this->element('h3', null, _m('Followers trend'));
-
-        // FIXME: Duplicate code. Merge this and the above (object agnostic)
-        $this->elementStart('table', array('class' => 'social_stats followers'));
-        $this->element('caption', null, 'Posts per day');
-
-        // Date iterator
-        $i_date = clone($this->gc->month);
+        $ttl_followers = $this->gc->ttl_followers;
 
         // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
-        $ttl_followers = $this->gc->ttl_followers;
         while($i_date->format('m') == $this->gc->month->format('m')) {
-            $ttl_followers += intval($this->gc->arr_followers[$i_date->format('Y-m-d')]);
             $this->elementStart('tr');
             $this->element('th', null, $i_date->format('Y-m-d'));
-            $this->element('td', null, $ttl_followers); // intval change null into zeros for postless days
+            $this->element('td', null, intval($this->gc->arr_notices[$i_date->format('Y-m-d')])); // intval changes null into zeros for postless days
+
+            // Following
+            $ttl_following += intval($this->gc->arr_following[$i_date->format('Y-m-d')]);
+            $this->element('td', null, $ttl_following); // intval changes null into zeros
+
+            // Followers
+            $ttl_followers += intval($this->gc->arr_followers[$i_date->format('Y-m-d')]);
+            $this->element('td', null, $ttl_followers); // intval changes null into zeros
+
+
             $this->elementEnd('tr');
             $i_date->modify('+1 day');
         }
-
         $this->elementEnd('table');
 
         // TODO: Clean this up (DateTime::modify()?)
