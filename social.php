@@ -101,13 +101,7 @@ class SocialAction extends Action
      */
     function title()
     {
-        if (empty($this->user)) {
-            // TRANS: Page title for anonymous users.
-            return _m('You need to be logged in to view this page');
-        } else {
-            // TRANS: Page title for loggedin users.
-            return _m('Social Analytics');
-        }
+        return _m('Social Analytics');
     }
 
     /**
@@ -127,7 +121,7 @@ class SocialAction extends Action
         if (empty($this->user)) {
             $this->element('p', array('class' => 'greeting'),
                            // TRANS: Message in sample plugin.
-                           _m('Hello, stranger!'));
+                           _m('You need to be logged in to view this page'));
             return;
         }
 
