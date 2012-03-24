@@ -7,5 +7,5 @@ My SN instance is pretty small (single-user, not many notices); I don't know how
 ## Instructions
 
 Drop the files in your `/plugins/` folder  
-Tell `/config.php` to use it with: `addPlugin('SocialAnalytics');  
+Tell `/config.php` to use it with: `addPlugin('SocialAnalytics');`  
 You should now have a 'Social Analytics' item in your SN left navigation.
