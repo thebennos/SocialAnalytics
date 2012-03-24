@@ -153,12 +153,7 @@ class Social_analytics extends Memcached_DataObject
     static function dailyAvgs($user_id, $target_month=NULL)
     {
         $gc = new Social_analytics();
-
-        $gc->user_id            = $user_id;
-        $gc->last_updated       = date(DATE_ISO8601);
-        $gc->avg_posts_day      = 0;
-        $gc->avg_follows_day    = 0;
-        $gc->avg_followers_day  = 0;
+        $gc->user_id = $user_id;
 
         if(!$target_month) {
             $target_month = new DateTime('first day of this month');
@@ -173,23 +168,18 @@ class Social_analytics extends Memcached_DataObject
         $gc->arr_notices = array();
 
         $notices = Memcached_DataObject::listGet('Notice', 'profile_id', array($user_id));
+        $date_created = new DateTime();
         foreach($notices[1] as $notice) {
             // Get date notice was created
             try {
-                $date = new DateTime($notice->created);
+                $date_created->modify($notice->created);
             } catch(Exception $e) {
                 // TODO: log/display error
                 continue;
             }
 
-            // Extract month
-            if(($month = $date->format('Y-m')) === false) {
-                // TODO: log/display error
-                continue;
-            }
-
-            if($month == $target_month->format('Y-m')) {
-                $gc->arr_notices[$date->format('Y-m-d')]++;
+            if($date_created->format('Y-m') == $target_month->format('Y-m')) {
+                $gc->arr_notices[$date_created->format('Y-m-d')]++;
                 $ttl_notices++;
             }
             else {
@@ -197,6 +187,59 @@ class Social_analytics extends Memcached_DataObject
             }
         }
 
+        // FIXME: Copy/paste is bad, mmkay? (Create object-agnostic version of this and above and below)
+        $ttl_following = 0;
+        $arr_following = Memcached_DataObject::listGet('Subscription', 'subscriber', array($user_id));
+        foreach($arr_following[1] as $following) {
+            // This is in my DB, but doesn't show up in my 'Following' total (???)
+            if($following->subscriber == $following->subscribed) {
+                continue;
+            }
+
+            try {
+                $date_created->modify($following->created);
+            } catch(Exception $e) {
+                // TODO: log/display error
+                continue;
+            }
+
+            if($date_created->format('Y-m') == $target_month->format('Y-m')) {
+                $gc->arr_following[$date_created->format('Y-m-d')]++;
+            }
+            elseif($date_created->format('Y-m') < $target_month->format('Y-m')) {
+                $ttl_following++;
+                continue;
+            }
+        }
+
+        $gc->ttl_following = $ttl_following;
+
+        // FIXME: Redundant code (see above)
+        $ttl_followers = 0;
+        $arr_followers = Memcached_DataObject::listGet('Subscription', 'subscribed', array($user_id));
+        foreach($arr_followers[1] as $follower) {
+            // This is in my DB, but doesn't show up in my 'Following' total (???)
+            if($follower->subscriber == $follower->subscribed) {
+                continue;
+            }
+
+            try {
+                $date_created->modify($follower->created);
+            } catch(Exception $e) {
+                // TODO: log/display error
+                continue;
+            }
+
+            if($date_created->format('Y-m') == $target_month->format('Y-m')) {
+                $gc->arr_followers[$date_created->format('Y-m-d')]++;
+            }
+            elseif($date_created->format('Y-m') < $target_month->format('Y-m')) {
+                $ttl_followers++;
+                continue;
+            }
+        }
+
+        $gc->ttl_followers = $ttl_followers;
         return $gc;
     }
 }

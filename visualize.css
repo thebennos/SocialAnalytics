@@ -1,3 +1,6 @@
+/* SocialAnalytics additons */
+#content h1 {display: none;}
+
 /*plugin styles*/
 .visualize { border: 1px solid #888; position: relative; background: #fafafa; }
 .visualize canvas { position: absolute; }
