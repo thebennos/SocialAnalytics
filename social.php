@@ -128,70 +128,71 @@ class SocialAction extends Action
             $this->element('p', array('class' => 'greeting'),
                            // TRANS: Message in sample plugin.
                            _m('Hello, stranger!'));
-        } else {
-            $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
-            $this->element('h3', null, _m('Posts per day'));
-
-            $this->elementStart('table', array('class' => 'social_stats notices'));
-            $this->element('caption', null, 'Posts per day');
-
-            // Date iterator
-            $i_date = clone($this->gc->month);
-
-            // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
-            while($i_date->format('m') == $this->gc->month->format('m')) {
-                $this->elementStart('tr');
-                $this->element('th', null, $i_date->format('Y-m-d'));
-                $this->element('td', null, intval($this->gc->arr_notices[$i_date->format('Y-m-d')])); // intval change null into zeros for postless days
-                $this->elementEnd('tr');
-                $i_date->modify('+1 day');
-            }
-            $this->elementEnd('table');
-
-            $this->element('h3', null, _m('Following trend'));
-
-            // FIXME: Duplicate code. Merge this and the above (object agnostic)
-            $this->elementStart('table', array('class' => 'social_stats following'));
-            $this->element('caption', null, 'Posts per day');
-
-            // Date iterator
-            $i_date = clone($this->gc->month);
-
-            // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
-            $ttl_following = $this->gc->ttl_following;
-            while($i_date->format('m') == $this->gc->month->format('m')) {
-                $ttl_following += intval($this->gc->arr_following[$i_date->format('Y-m-d')]);
-                $this->elementStart('tr');
-                $this->element('th', null, $i_date->format('Y-m-d'));
-                $this->element('td', null, $ttl_following); // intval change null into zeros for postless days
-                $this->elementEnd('tr');
-                $i_date->modify('+1 day');
-            }
-            $this->elementEnd('table');
-
-
-            $this->element('h3', null, _m('Followers trend'));
-
-            // FIXME: Duplicate code. Merge this and the above (object agnostic)
-            $this->elementStart('table', array('class' => 'social_stats followers'));
-            $this->element('caption', null, 'Posts per day');
-
-            // Date iterator
-            $i_date = clone($this->gc->month);
-
-            // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
-            $ttl_followers = $this->gc->ttl_followers;
-            while($i_date->format('m') == $this->gc->month->format('m')) {
-                $ttl_followers += intval($this->gc->arr_followers[$i_date->format('Y-m-d')]);
-                $this->elementStart('tr');
-                $this->element('th', null, $i_date->format('Y-m-d'));
-                $this->element('td', null, $ttl_followers); // intval change null into zeros for postless days
-                $this->elementEnd('tr');
-                $i_date->modify('+1 day');
-            }
-            $this->elementEnd('table');
-
+            return;
         }
+
+        $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
+        $this->element('h3', null, _m('Posts per day'));
+
+        $this->elementStart('table', array('class' => 'social_stats notices'));
+        $this->element('caption', null, 'Posts per day');
+
+        // Date iterator
+        $i_date = clone($this->gc->month);
+
+        // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
+        while($i_date->format('m') == $this->gc->month->format('m')) {
+            $this->elementStart('tr');
+            $this->element('th', null, $i_date->format('Y-m-d'));
+            $this->element('td', null, intval($this->gc->arr_notices[$i_date->format('Y-m-d')])); // intval change null into zeros for postless days
+            $this->elementEnd('tr');
+            $i_date->modify('+1 day');
+        }
+        $this->elementEnd('table');
+
+        $this->element('h3', null, _m('Following trend'));
+
+        // FIXME: Duplicate code. Merge this and the above (object agnostic)
+        $this->elementStart('table', array('class' => 'social_stats following'));
+        $this->element('caption', null, 'Posts per day');
+
+        // Date iterator
+        $i_date = clone($this->gc->month);
+
+        // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
+        $ttl_following = $this->gc->ttl_following;
+        while($i_date->format('m') == $this->gc->month->format('m')) {
+            $ttl_following += intval($this->gc->arr_following[$i_date->format('Y-m-d')]);
+            $this->elementStart('tr');
+            $this->element('th', null, $i_date->format('Y-m-d'));
+            $this->element('td', null, $ttl_following); // intval change null into zeros for postless days
+            $this->elementEnd('tr');
+            $i_date->modify('+1 day');
+        }
+        $this->elementEnd('table');
+
+
+        $this->element('h3', null, _m('Followers trend'));
+
+        // FIXME: Duplicate code. Merge this and the above (object agnostic)
+        $this->elementStart('table', array('class' => 'social_stats followers'));
+        $this->element('caption', null, 'Posts per day');
+
+        // Date iterator
+        $i_date = clone($this->gc->month);
+
+        // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
+        $ttl_followers = $this->gc->ttl_followers;
+        while($i_date->format('m') == $this->gc->month->format('m')) {
+            $ttl_followers += intval($this->gc->arr_followers[$i_date->format('Y-m-d')]);
+            $this->elementStart('tr');
+            $this->element('th', null, $i_date->format('Y-m-d'));
+            $this->element('td', null, $ttl_followers); // intval change null into zeros for postless days
+            $this->elementEnd('tr');
+            $i_date->modify('+1 day');
+        }
+
+        $this->elementEnd('table');
 
         // TODO: Clean this up (DateTime::modify()?)
         $this->gc->month->sub(new DateInterval('P1M')); // Previous Month
