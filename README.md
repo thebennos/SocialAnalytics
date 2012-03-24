@@ -1,7 +1,5 @@
 ## Note
 
-This is pre-pre-alpha.  
-As in: I wrote it, looked at the page, seemed to be working, shoved it on GitHub.  
 My SN instance is pretty small (single-user, not many notices); I don't know how well it behaves on larger instances.
 
 ## Instructions
