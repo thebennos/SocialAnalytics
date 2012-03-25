@@ -126,16 +126,16 @@ class SocialAction extends Action
         }
 
         $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
-//        $this->element('h3', null, _m('Posts per day'));
+
+        $this->element('div', array('class' => 'social_graph'));
 
         $this->elementStart('table', array('class' => 'social_stats notices'));
-//        $this->element('caption', null, 'Posts per day');
 
         $this->elementStart('tr');
         $this->element('td');
-        $this->element('th', null, 'Notices'); // TODO: Trans
-        $this->element('th', null, 'Following');
-        $this->element('th', null, 'Followers');
+        $this->element('th', null, _m('Notices'));
+        $this->element('th', null, _m('Following'));
+        $this->element('th', null, _m('Followers'));
         $this->elementEnd('tr');
 
         // Date iterator
@@ -163,11 +163,14 @@ class SocialAction extends Action
         }
         $this->elementEnd('table');
 
-        // TODO: Clean this up (DateTime::modify()?)
-        $this->gc->month->sub(new DateInterval('P1M')); // Previous Month
-        $this->element('a', array('href' => '/social?month=' . $this->gc->month->format('Y-m')), 'Previous Month');
-        $this->gc->month->add(new DateInterval('P2M')); // Next Month
-        $this->element('a', array('href' => '/social?month=' . $this->gc->month->format('Y-m'), 'style' => 'float: right;'), 'Next Month');
+        $this->element('a', array('href' => '/social?month=' . $this->gc->month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
+
+        // Don't generate a 'next' link if the next month is in the future
+        $today = new DateTime();
+//        if($today->format('Y-m') >= $this->gc->month->modify('+2 month')->format('Y-m')) {
+        if($today >= $this->gc->month->modify('+2 month')) {
+            $this->element('a', array('href' => '/social?month=' . $this->gc->month->format('Y-m'), 'style' => 'float: right;'), _m('Next Month'));
+        }
     }
 
     /**

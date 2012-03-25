@@ -461,5 +461,6 @@ $.fn.visualize = function(options, container){
 })(jQuery);
 
 $(document).ready(function(){
-    $('table.social_stats').visualize({type: 'line', width: 520, height: 300, parseDirection: 'y'});
+    $('table.social_stats').visualize({type: 'line', width: 700, height: 300, parseDirection: 'y'})
+        .appendTo('.social_graph');
 });

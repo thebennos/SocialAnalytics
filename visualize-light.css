@@ -7,8 +7,11 @@ table.accessHide { position: absolute; left: -999999px; }
 table.social_stats td, table.social_stats th {  padding: 2px; width: 13%; }
 table.social_stats th { background-color:#f4f4f4; }  */
 
-.visualize-labels-x, table.social_stats {display: none;}
-body .visualize {margin: 0 10px 10px 10px; padding: 0;}
+.visualize-labels-x {display: none;}
+body .visualize {margin: 0 30px 10px 30px; padding: 0;}
+.social_stats, .social_stats th, .social_stats td {border: 1px solid #333;}
+.social_stats th, .social_stats td {padding: 3px;}
+.social_stats td {text-align: right;}
 
 /*visualize extension styles*/
 .visualize { margin: 60px 0 0 30px; padding: 70px 40px 90px; background: #ccc url(../images/chartbg-vanilla.png) top repeat-x; border: 1px solid #ddd; -moz-border-radius: 12px; -webkit-border-radius: 12px; border-radius: 12px; }
