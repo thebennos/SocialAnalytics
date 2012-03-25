@@ -9,10 +9,10 @@ table.social_stats th { background-color:#f4f4f4; }  */
 
 .visualize-labels-x {display: none;}
 body .visualize {margin: 0 30px 10px 30px; padding: 0;}
-.social_stats {width: 100%; display: none;}
-.social_stats, .social_stats th, .social_stats td {border: 1px solid #333;}
-.social_stats th, .social_stats td {padding: 3px;}
-.social_stats td {text-align: right;}
+.social_table {width: 100%; display: none;}
+.social_table, .social_table th, .social_table td {border: 1px solid #333;}
+.social_table th, .social_table td {padding: 3px;}
+.social_table td {text-align: right;}
 .social_nav {margin-bottom: 5px; padding: 0; list-style-type: none; overflow: hidden;}
 .social_nav .prev {float: left;}
 .social_nav .next {float: right;}
@@ -30,9 +30,8 @@ body .visualize {margin: 0 30px 10px 30px; padding: 0;}
   background-position: 0 -188px;
   padding-left: 25px;
 }
-div.hosts_following ul.visualize-key li, div.hosts_followers ul.visualize-key li {float: none;}
-/*.hosts_following*/ div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
-
+div.hosts_following_graph ul.visualize-key li, div.hosts_followers_graph ul.visualize-key li {float: none;}
+div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
 
 /*visualize extension styles*/
 .visualize { margin: 60px 0 0 30px; padding: 70px 40px 90px; background: #ccc url(../images/chartbg-vanilla.png) top repeat-x; border: 1px solid #ddd; -moz-border-radius: 12px; -webkit-border-radius: 12px; border-radius: 12px; }

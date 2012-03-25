@@ -104,6 +104,56 @@ class SocialAction extends Action
         return _m('Social Analytics');
     }
 
+    function printNavigation($current_month) {
+        $month = clone($current_month);
+
+        $this->elementStart('ul', array('class' => 'social_nav'));
+        $this->elementStart('li', array('class' => 'prev'));
+        $this->element('a', array('href' => '/social?month=' . $month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
+        $this->elementEnd('li');
+
+        // Don't generate a 'next' link if the next month is in the future
+        $today = new DateTime();
+//        if($today->format('Y-m') >= $month->modify('+2 month')->format('Y-m')) {
+        if($today >= $month->modify('+2 month')) {
+            $this->elementStart('li', array('class' => 'next'));
+            $this->element('a', array('href' => '/social?month=' . $month->format('Y-m')), _m('Next Month'));
+            $this->elementEnd('li');
+        }
+        $this->elementEnd('ul');
+    }
+
+    function printGraph($name, $headers, $rows) {
+        // Title
+        $this->element('h3', null, ucfirst(str_replace('_', ' ', _m($name))));
+
+        // Graph container
+        $this->element('div', array('class' => 'social_graph ' . $name . '_graph'));
+
+        // Toggle link
+        $this->element('a', array('class' => 'toggleTable', 'href' => '#'), _m('Show ' . str_replace('_', ' ', $name) . ' table'));
+
+        // Data table
+        $this->elementStart('table', array('class' => 'social_table ' . $name . '_table'));
+        $this->elementStart('tr');
+        $this->element('td');
+        // First row (headers)
+        foreach($headers as $header) {
+            $this->element('th', null, $header);
+        }
+        // Data rows
+        $this->elementEnd('tr');
+        foreach($rows as $row) {
+            $this->elementStart('tr');
+            $this->element('th', null, array_shift($row)); // First cell is a header
+            foreach($row as $cell) {
+                $this->element('td', null, $cell); // The rest are data
+            }
+            $this->elementEnd('tr');
+        }
+        $this->elementEnd('table');
+    }
+
     /**
      * Show content in the content area
      *
@@ -118,27 +168,7 @@ class SocialAction extends Action
      */
     function showContent()
     {
-        $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
-
-        // TODO: Clean this up
-        // Month navigation
-        $this->elementStart('ul', array('class' => 'social_nav'));
-        $this->elementStart('li', array('class' => 'prev'));
-        $this->element('a', array('href' => '/social?month=' . $this->gc->month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
-        $this->elementEnd('li');
-
-        // Don't generate a 'next' link if the next month is in the future
-        $today = new DateTime();
-//        if($today->format('Y-m') >= $this->gc->month->modify('+2 month')->format('Y-m')) {
-        if($today >= $this->gc->month->modify('+2 month')) {
-            $this->elementStart('li', array('class' => 'next'));
-            $this->element('a', array('href' => '/social?month=' . $this->gc->month->format('Y-m')), _m('Next Month'));
-            $this->elementEnd('li');
-        }
-        $this->elementEnd('ul');
-
-        $this->gc->month->modify('-1 month');
-
+        // Display "error" message on anonymous views
         if (empty($this->user)) {
             $this->element('p', array('class' => 'greeting'),
                            // TRANS: Message in sample plugin.
@@ -146,107 +176,52 @@ class SocialAction extends Action
             return;
         }
 
-        $this->element('h3', null, _m('Trends'));
-
-        $this->element('div', array('class' => 'social_graph'));
-
-        $this->elementStart('div', array('class' => 'visibilityToggle'));
-        $this->element('a', array('href' => '#'), _m('Show table'));
-        $this->elementStart('table', array('class' => 'social_stats notices'));
-
-        $this->elementStart('tr');
-        $this->element('td');
-        $this->element('th', null, _m('Notices'));
-        $this->element('th', null, _m('Following'));
-        $this->element('th', null, _m('Followers'));
-        $this->elementEnd('tr');
+        // Print month and month navigation
+        $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
+        $this->printNavigation($this->gc->month);
 
         // Date iterator
+        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
         $i_date = clone($this->gc->month);
         $ttl_following = $this->gc->ttl_following;
         $ttl_followers = $this->gc->ttl_followers;
 
-        // For each day in month, create a 2col table row with the date in the 1st column and the number of posts in the 2nd.
+        $arr_rows = array();
         while($i_date->format('m') == $this->gc->month->format('m')) {
-            $this->elementStart('tr');
-            $this->element('th', null, $i_date->format('Y-m-d'));
-            $this->element('td', null, intval($this->gc->arr_notices[$i_date->format('Y-m-d')])); // intval changes null into zeros for postless days
-
-            // Following
             $ttl_following += intval($this->gc->arr_following[$i_date->format('Y-m-d')]);
-            $this->element('td', null, $ttl_following); // intval changes null into zeros
-
-            // Followers
             $ttl_followers += intval($this->gc->arr_followers[$i_date->format('Y-m-d')]);
-            $this->element('td', null, $ttl_followers); // intval changes null into zeros
 
+            $arr_rows[] = array(
+                $i_date->format('Y-m-d'), 
+                intval($this->gc->arr_notices[$i_date->format('Y-m-d')]),
+                $ttl_following,
+                $ttl_followers
+            );
 
-            $this->elementEnd('tr');
             $i_date->modify('+1 day');
         }
-        $this->elementEnd('table');
-        $this->elementEnd('div');
+
+        $this->printGraph('trends', array('Notices', 'Following', 'Followers'), $arr_rows);
 
         // Following Hosts
-        $this->element('h3', null, _m('Following Hosts'));
-        $this->element('div', array('class' => 'hosts_following'));
-
-        $this->elementStart('div', array('class' => 'visibilityToggle'));
-        $this->element('a', array('href' => '#'), _m('Show table'));
-
-        $this->elementStart('table', array('class' => 'social_stats pie', 'id' => 'hosts_following'));
-        $this->elementStart('tr');
-        $this->element('td');
-        $this->element('th', null, 'nb');
-        $this->elementEnd('tr');
+        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
+        $arr_rows = array();
         foreach($this->gc->arr_following_hosts as $host => $count) {
-            $this->elementStart('tr');
-            $this->element('th', null, $host);
-            $this->element('td', null, $count);
-            $this->elementEnd('tr');
+            $arr_rows[] = array($host, $count);
         }
-        $this->elementEnd('table');
-        $this->elementEnd('div');
+
+        $this->printGraph('hosts_following', array('nb'), $arr_rows);
 
         // Followers Hosts
-        $this->element('h3', null, _m('Followers Hosts'));
-        $this->element('div', array('class' => 'hosts_followers'));
-
-        $this->elementStart('div', array('class' => 'visibilityToggle'));
-        $this->element('a', array('href' => '#'), _m('Show table'));
-
-        $this->elementStart('table', array('class' => 'social_stats pie', 'id' => 'hosts_followers'));
-        $this->elementStart('tr');
-        $this->element('td');
-        $this->element('th', null, 'nb');
-        $this->elementEnd('tr');
+        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
+        $arr_rows = array();
         foreach($this->gc->arr_followers_hosts as $host => $count) {
-            $this->elementStart('tr');
-            $this->element('th', null, $host);
-            $this->element('td', null, $count);
-            $this->elementEnd('tr');
+            $arr_rows[] = array($host, $count);
         }
-        $this->elementEnd('table');
-        $this->elementEnd('div');
+        
+        $this->printGraph('hosts_followers', array('nb'), $arr_rows);
 
-        // TODO: Clean this up
-        // Month navigation
-        $this->elementStart('ul', array('class' => 'social_nav'));
-        $this->elementStart('li', array('class' => 'prev'));
-        $this->element('a', array('href' => '/social?month=' . $this->gc->month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
-        $this->elementEnd('li');
-
-        // Don't generate a 'next' link if the next month is in the future
-        $today = new DateTime();
-//        if($today->format('Y-m') >= $this->gc->month->modify('+2 month')->format('Y-m')) {
-        if($today >= $this->gc->month->modify('+2 month')) {
-            $this->elementStart('li', array('class' => 'next'));
-            $this->element('a', array('href' => '/social?month=' . $this->gc->month->format('Y-m')), _m('Next Month'));
-            $this->elementEnd('li');
-        }
-        $this->elementEnd('ul');
-
-        $this->gc->month->modify('-1 month');
+        $this->printNavigation($this->gc->month);
     }
 
     /**

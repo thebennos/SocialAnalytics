@@ -462,11 +462,11 @@ $.fn.visualize = function(options, container){
 
 /* Social Analytics Additions */
 $(document).ready(function(){
-    $('table.social_stats.notices').visualize({type: 'line', width: 700, height: 300, parseDirection: 'y', colFilter: ':not(.visualize-ignore)', rowFilter: ':not(.visualize-ignore)'})
-        .appendTo('.social_graph');
+    $('.trends_table').visualize({type: 'line', width: 700, height: 300, parseDirection: 'y', colFilter: ':not(.visualize-ignore)', rowFilter: ':not(.visualize-ignore)'})
+        .appendTo('.trends_graph');
 
     // For each table header in the first table row
-    $('table.social_stats tr:eq(0) th').each(function(i, th) {
+    $('.trends_table tr:eq(0) th').each(function(i, th) {
         // Build the link that will be wrapped around the table header
         $link = $('<a href="#"></a>').click(function(e) {
             // Don't follow link on click
@@ -475,7 +475,7 @@ $(document).ready(function(){
             
             // Add the ignored class to the header and the rest of the colum
             $(th).toggleClass('visualize-ignore');
-            $('table.social_stats tr:gt(0) td:nth-child(' + parseInt(i+2) + ')').toggleClass('visualize-ignore');
+            $('.trends_table tr:gt(0) td:nth-child(' + parseInt(i+2) + ')').toggleClass('visualize-ignore');
 
             // Refresh the graph
             $('.visualize').trigger('visualizeRefresh');
@@ -485,16 +485,17 @@ $(document).ready(function(){
         $(this).wrapInner($link);
     });
 
-    $('#hosts_following').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','yellow','red','blue','green']})
-        .appendTo('.hosts_following');
+    $('.hosts_following_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','yellow','red','blue','green']})
+        .appendTo('.hosts_following_graph');
 
-    $('#hosts_followers').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','yellow','red','blue','green']})
-        .appendTo('.hosts_followers');
+    $('.hosts_followers_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','yellow','red','blue','green']})
+        .appendTo('.hosts_followers_graph');
 
-    $('.visibilityToggle a').click(function(e){
+    $('.toggleTable').click(function(e){
         e.preventDefault();
         e.stopPropagation();
-        $(this).siblings('table').fadeToggle();
+        $(this).next('table').fadeToggle();
+      //  $(this).siblings('table').fadeToggle();
     });
 
 });
