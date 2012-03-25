@@ -129,6 +129,24 @@ class SocialAction extends Action
 
         $this->element('div', array('class' => 'social_graph'));
 
+        $this->elementStart('ul', array('class' => 'social_nav'));
+        $this->elementStart('li', array('class' => 'prev'));
+        $this->element('a', array('href' => '/social?month=' . $this->gc->month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
+        $this->elementEnd('li');
+
+        // Don't generate a 'next' link if the next month is in the future
+        $today = new DateTime();
+//        if($today->format('Y-m') >= $this->gc->month->modify('+2 month')->format('Y-m')) {
+        if($today >= $this->gc->month->modify('+2 month')) {
+            $this->elementStart('li', array('class' => 'next'));
+            $this->element('a', array('href' => '/social?month=' . $this->gc->month->format('Y-m')), _m('Next Month'));
+            $this->elementEnd('li');
+        }
+        $this->elementEnd('ul');
+        $this->elementEnd('div');
+
+        $this->gc->month->modify('-1 month');
+
         $this->elementStart('table', array('class' => 'social_stats notices'));
 
         $this->elementStart('tr');
@@ -162,15 +180,6 @@ class SocialAction extends Action
             $i_date->modify('+1 day');
         }
         $this->elementEnd('table');
-
-        $this->element('a', array('href' => '/social?month=' . $this->gc->month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
-
-        // Don't generate a 'next' link if the next month is in the future
-        $today = new DateTime();
-//        if($today->format('Y-m') >= $this->gc->month->modify('+2 month')->format('Y-m')) {
-        if($today >= $this->gc->month->modify('+2 month')) {
-            $this->element('a', array('href' => '/social?month=' . $this->gc->month->format('Y-m'), 'style' => 'float: right;'), _m('Next Month'));
-        }
     }
 
     /**
