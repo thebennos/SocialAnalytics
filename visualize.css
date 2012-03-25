@@ -4,7 +4,7 @@
 #social #content_wrapper {border-right: none;}
 #social #aside_primary {display: none;}
 #social #aside_primary_wrapper {background-color: #FFF;}
-
+#social .input_forms {display: none;}
 
 /*plugin styles*/
 .visualize { border: 1px solid #888; position: relative; background: #fafafa; }
