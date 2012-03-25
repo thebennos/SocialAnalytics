@@ -118,6 +118,8 @@ class SocialAction extends Action
      */
     function showContent()
     {
+        $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
+
         // TODO: Clean this up
         // Month navigation
         $this->elementStart('ul', array('class' => 'social_nav'));
@@ -137,8 +139,6 @@ class SocialAction extends Action
 
         $this->gc->month->modify('-1 month');
 
-
-
         if (empty($this->user)) {
             $this->element('p', array('class' => 'greeting'),
                            // TRANS: Message in sample plugin.
@@ -146,7 +146,7 @@ class SocialAction extends Action
             return;
         }
 
-        $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
+        $this->element('h3', null, _m('Trends'));
 
         $this->element('div', array('class' => 'social_graph'));
 
@@ -188,7 +188,7 @@ class SocialAction extends Action
         $this->elementEnd('div');
 
         // Following Hosts
-        $this->element('h2', null, _m('Following Hosts'));
+        $this->element('h3', null, _m('Following Hosts'));
         $this->element('div', array('class' => 'hosts_following'));
 
         $this->elementStart('div', array('class' => 'visibilityToggle'));
@@ -209,7 +209,7 @@ class SocialAction extends Action
         $this->elementEnd('div');
 
         // Followers Hosts
-        $this->element('h2', null, _m('Followers Hosts'));
+        $this->element('h3', null, _m('Followers Hosts'));
         $this->element('div', array('class' => 'hosts_followers'));
 
         $this->elementStart('div', array('class' => 'visibilityToggle'));
