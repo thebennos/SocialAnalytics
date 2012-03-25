@@ -189,6 +189,7 @@ class Social_analytics extends Memcached_DataObject
 
         // FIXME: Copy/paste is bad, mmkay? (Create object-agnostic version of this and above and below)
         $ttl_following = 0;
+        $gc->arr_following_hosts = array();
         $arr_following = Memcached_DataObject::listGet('Subscription', 'subscriber', array($user_id));
         foreach($arr_following[1] as $following) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
@@ -205,10 +206,16 @@ class Social_analytics extends Memcached_DataObject
 
             if($date_created->format('Y-m') == $target_month->format('Y-m')) {
                 $gc->arr_following[$date_created->format('Y-m-d')]++;
+                $profile = Profile::staticGet('id', $following->subscribed);
+
+                $gc->arr_following_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
             elseif($date_created->format('Y-m') < $target_month->format('Y-m')) {
                 $ttl_following++;
-                continue;
+                $profile = Profile::staticGet('id', $following->subscribed);
+
+                $gc->arr_following_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                continue; // NOTE: Why is this here?
             }
         }
 
@@ -216,6 +223,7 @@ class Social_analytics extends Memcached_DataObject
 
         // FIXME: Redundant code (see above)
         $ttl_followers = 0;
+        $gc->arr_followers_hosts = array();
         $arr_followers = Memcached_DataObject::listGet('Subscription', 'subscribed', array($user_id));
         foreach($arr_followers[1] as $follower) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
@@ -232,10 +240,16 @@ class Social_analytics extends Memcached_DataObject
 
             if($date_created->format('Y-m') == $target_month->format('Y-m')) {
                 $gc->arr_followers[$date_created->format('Y-m-d')]++;
+                $profile = Profile::staticGet('id', $follower->subscriber);
+
+                $gc->arr_followers_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
             elseif($date_created->format('Y-m') < $target_month->format('Y-m')) {
                 $ttl_followers++;
-                continue;
+                $profile = Profile::staticGet('id', $follower->subscriber);
+
+                $gc->arr_followers_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                continue; // NOTE: Why is this here?
             }
         }
 

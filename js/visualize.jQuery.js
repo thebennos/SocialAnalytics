@@ -462,7 +462,7 @@ $.fn.visualize = function(options, container){
 
 /* Social Analytics Additions */
 $(document).ready(function(){
-    $('table.social_stats').visualize({type: 'line', width: 700, height: 300, parseDirection: 'y', colFilter: ':not(.visualize-ignore)', rowFilter: ':not(.visualize-ignore)'})
+    $('table.social_stats.notices').visualize({type: 'line', width: 700, height: 300, parseDirection: 'y', colFilter: ':not(.visualize-ignore)', rowFilter: ':not(.visualize-ignore)'})
         .appendTo('.social_graph');
 
     // For each table header in the first table row
@@ -484,4 +484,17 @@ $(document).ready(function(){
         // Add link around table headers
         $(this).wrapInner($link);
     });
+
+    $('#hosts_following').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','yellow','red','blue','green']})
+        .appendTo('.hosts_following');
+
+    $('#hosts_followers').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','yellow','red','blue','green']})
+        .appendTo('.hosts_followers');
+
+    $('.visibilityToggle a').click(function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).siblings('table').fadeToggle();
+    });
+
 });

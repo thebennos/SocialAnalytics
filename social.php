@@ -118,17 +118,8 @@ class SocialAction extends Action
      */
     function showContent()
     {
-        if (empty($this->user)) {
-            $this->element('p', array('class' => 'greeting'),
-                           // TRANS: Message in sample plugin.
-                           _m('You need to be logged in to view this page'));
-            return;
-        }
-
-        $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
-
-        $this->element('div', array('class' => 'social_graph'));
-
+        // TODO: Clean this up
+        // Month navigation
         $this->elementStart('ul', array('class' => 'social_nav'));
         $this->elementStart('li', array('class' => 'prev'));
         $this->element('a', array('href' => '/social?month=' . $this->gc->month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
@@ -146,6 +137,21 @@ class SocialAction extends Action
 
         $this->gc->month->modify('-1 month');
 
+
+
+        if (empty($this->user)) {
+            $this->element('p', array('class' => 'greeting'),
+                           // TRANS: Message in sample plugin.
+                           _m('You need to be logged in to view this page'));
+            return;
+        }
+
+        $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
+
+        $this->element('div', array('class' => 'social_graph'));
+
+        $this->elementStart('div', array('class' => 'visibilityToggle'));
+        $this->element('a', array('href' => '#'), _m('Show table'));
         $this->elementStart('table', array('class' => 'social_stats notices'));
 
         $this->elementStart('tr');
@@ -179,6 +185,68 @@ class SocialAction extends Action
             $i_date->modify('+1 day');
         }
         $this->elementEnd('table');
+        $this->elementEnd('div');
+
+        // Following Hosts
+        $this->element('h2', null, _m('Following Hosts'));
+        $this->element('div', array('class' => 'hosts_following'));
+
+        $this->elementStart('div', array('class' => 'visibilityToggle'));
+        $this->element('a', array('href' => '#'), _m('Show table'));
+
+        $this->elementStart('table', array('class' => 'social_stats pie', 'id' => 'hosts_following'));
+        $this->elementStart('tr');
+        $this->element('td');
+        $this->element('th', null, 'nb');
+        $this->elementEnd('tr');
+        foreach($this->gc->arr_following_hosts as $host => $count) {
+            $this->elementStart('tr');
+            $this->element('th', null, $host);
+            $this->element('td', null, $count);
+            $this->elementEnd('tr');
+        }
+        $this->elementEnd('table');
+        $this->elementEnd('div');
+
+        // Followers Hosts
+        $this->element('h2', null, _m('Followers Hosts'));
+        $this->element('div', array('class' => 'hosts_followers'));
+
+        $this->elementStart('div', array('class' => 'visibilityToggle'));
+        $this->element('a', array('href' => '#'), _m('Show table'));
+
+        $this->elementStart('table', array('class' => 'social_stats pie', 'id' => 'hosts_followers'));
+        $this->elementStart('tr');
+        $this->element('td');
+        $this->element('th', null, 'nb');
+        $this->elementEnd('tr');
+        foreach($this->gc->arr_followers_hosts as $host => $count) {
+            $this->elementStart('tr');
+            $this->element('th', null, $host);
+            $this->element('td', null, $count);
+            $this->elementEnd('tr');
+        }
+        $this->elementEnd('table');
+        $this->elementEnd('div');
+
+        // TODO: Clean this up
+        // Month navigation
+        $this->elementStart('ul', array('class' => 'social_nav'));
+        $this->elementStart('li', array('class' => 'prev'));
+        $this->element('a', array('href' => '/social?month=' . $this->gc->month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
+        $this->elementEnd('li');
+
+        // Don't generate a 'next' link if the next month is in the future
+        $today = new DateTime();
+//        if($today->format('Y-m') >= $this->gc->month->modify('+2 month')->format('Y-m')) {
+        if($today >= $this->gc->month->modify('+2 month')) {
+            $this->elementStart('li', array('class' => 'next'));
+            $this->element('a', array('href' => '/social?month=' . $this->gc->month->format('Y-m')), _m('Next Month'));
+            $this->elementEnd('li');
+        }
+        $this->elementEnd('ul');
+
+        $this->gc->month->modify('-1 month');
     }
 
     /**
