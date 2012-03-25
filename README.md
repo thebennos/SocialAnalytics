@@ -1,3 +1,7 @@
+## Screenshot
+
+![Example screenshot](https://github.com/chimo/SocialAnalytics/raw/master/screenshot.png)
+
 ## Note
 
 My SN instance is pretty small (single-user, not many notices); I don't know how well it behaves on larger instances.
