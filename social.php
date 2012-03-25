@@ -143,7 +143,6 @@ class SocialAction extends Action
             $this->elementEnd('li');
         }
         $this->elementEnd('ul');
-        $this->elementEnd('div');
 
         $this->gc->month->modify('-1 month');
 
