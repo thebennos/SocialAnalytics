@@ -30,7 +30,7 @@ body .visualize {margin: 0 30px 10px 30px; padding: 0;}
   background-position: 0 -188px;
   padding-left: 25px;
 }
-div.hosts_following_graph ul.visualize-key li, div.hosts_followers_graph ul.visualize-key li {float: none;}
+div.clients_graph ul.visualize-key li, div.hosts_following_graph ul.visualize-key li, div.hosts_followers_graph ul.visualize-key li {float: none;}
 div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
 
 /*visualize extension styles*/

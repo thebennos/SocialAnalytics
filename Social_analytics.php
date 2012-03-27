@@ -179,6 +179,8 @@ class Social_analytics extends Memcached_DataObject
             }
 
             if($date_created->format('Y-m') == $target_month->format('Y-m')) {
+                $gc->arr_clients[$notice->source]++;
+
                 $gc->arr_notices[$date_created->format('Y-m-d')]++;
                 $ttl_notices++;
             }

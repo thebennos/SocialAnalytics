@@ -231,6 +231,15 @@ class SocialAction extends Action
         
         $this->printGraph('hosts_followers', array('nb'), $arr_rows);
 
+        // Clients
+        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
+        $arr_rows = array();
+        foreach($this->gc->arr_clients as $client => $count) {
+            $arr_rows[] = array($client, $count);
+        }
+
+        $this->printGraph('clients', array('nb'), $arr_rows);
+
         $this->printNavigation($this->gc->month);
     }
 
