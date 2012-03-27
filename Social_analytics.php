@@ -181,6 +181,12 @@ class Social_analytics extends Memcached_DataObject
             if($date_created->format('Y-m') == $target_month->format('Y-m')) {
                 $gc->arr_clients[$notice->source]++;
 
+                if($notice->reply_to) {
+                    $reply_to = Notice::staticGet('id', $notice->reply_to);
+                    $repliee = Profile::staticGet('id', $reply_to->profile_id);
+                    $gc->arr_replies[$repliee->nickname]++;
+                }
+
                 $gc->arr_notices[$date_created->format('Y-m-d')]++;
                 $ttl_notices++;
             }

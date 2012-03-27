@@ -240,6 +240,15 @@ class SocialAction extends Action
 
         $this->printGraph('clients', array('nb'), $arr_rows);
 
+        // Reply-to
+        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
+        $arr_rows = array();
+        foreach($this->gc->arr_replies as $reply => $count) {
+            $arr_rows[] = array($reply, $count);
+        }
+
+        $this->printGraph('replies', array('nb'), $arr_rows);
+
         $this->printNavigation($this->gc->month);
     }
 

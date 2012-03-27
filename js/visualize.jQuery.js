@@ -494,6 +494,9 @@ $(document).ready(function(){
     $('.clients_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','yellow','red','blue','green']})
         .appendTo('.clients_graph');
 
+    $('.replies_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','yellow','red','blue','green']})
+        .appendTo('.replies_graph');
+
     $('.toggleTable').click(function(e){
         e.preventDefault();
         e.stopPropagation();
