@@ -185,11 +185,18 @@ class SocialAction extends Action
         $i_date = clone($this->gc->month);
         $ttl_following = $this->gc->ttl_following;
         $ttl_followers = $this->gc->ttl_followers;
+        $avg_notices = 0;
 
         $arr_rows = array();
+        $today = new DateTime();
         while($i_date->format('m') == $this->gc->month->format('m')) {
+            if($i_date->format('Y-m-d') == $today->format('Y-m-d')) {
+                break;
+            }
+
             $ttl_following += intval($this->gc->arr_following[$i_date->format('Y-m-d')]);
             $ttl_followers += intval($this->gc->arr_followers[$i_date->format('Y-m-d')]);
+            $avg_notices += intval($this->gc->arr_notices[$i_date->format('Y-m-d')]);
 
             $arr_rows[] = array(
                 $i_date->format('Y-m-d'), 
@@ -201,7 +208,10 @@ class SocialAction extends Action
             $i_date->modify('+1 day');
         }
 
+        // FIXME: Potentially dividing by zero, the universe could implode.
+        $avg_notices = round($avg_notices/count($arr_rows));
         $this->printGraph('trends', array('Notices', 'Following', 'Followers'), $arr_rows);
+        $this->element('p', null, _m("Monthly average: $avg_notices"));
 
         // Following Hosts
         // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
