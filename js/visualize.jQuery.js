@@ -494,8 +494,13 @@ $(document).ready(function(){
     $('.toggleTable').click(function(e){
         e.preventDefault();
         e.stopPropagation();
+        
+        // Change 'Show' to 'Hide' or vice-versa in 'Show [table name] table' link
+        var txt = $(this).text();
+        $(this).text( txt.match(/^Show/) ? txt.replace(/^Show/, 'Hide') : txt.replace(/^Hide/, 'Show') );
+
+        // Toggle data table visibility
         $(this).next('table').fadeToggle();
-      //  $(this).siblings('table').fadeToggle();
     });
 
 });
