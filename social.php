@@ -211,7 +211,7 @@ class SocialAction extends Action
         // FIXME: Potentially dividing by zero, the universe could implode.
         $avg_notices = round($avg_notices/count($arr_rows));
         $this->printGraph('trends', array('Notices', 'Following', 'Followers'), $arr_rows);
-        $this->element('p', null, _m("Monthly average: $avg_notices"));
+        $this->element('p', null, _m("Daily average for this month: $avg_notices"));
 
         // Following Hosts
         // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
