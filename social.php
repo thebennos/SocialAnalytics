@@ -216,36 +216,68 @@ class SocialAction extends Action
         // Following Hosts
         // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
         $arr_rows = array();
+        arsort($this->gc->arr_following_hosts, SORT_NUMERIC);
+        $ttl_count = 0;
         foreach($this->gc->arr_following_hosts as $host => $count) {
-            $arr_rows[] = array($host, $count);
+            if(count($arr_rows) < 9) {
+                $arr_rows[] = array($host, $count);
+            }
+            else {
+                $ttl_count += $count;
+            }
         }
+        $arr_rows[10] = array('Other', $ttl_count);
 
         $this->printGraph('hosts_following', array('nb'), $arr_rows);
 
         // Followers Hosts
         // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
         $arr_rows = array();
+        arsort($this->gc->arr_followers_hosts, SORT_NUMERIC);
+        $ttl_count = 0;
         foreach($this->gc->arr_followers_hosts as $host => $count) {
-            $arr_rows[] = array($host, $count);
+            if(count($arr_rows) < 9) {
+                $arr_rows[] = array($host, $count);
+            }
+            else {
+                $ttl_count += $count;
+            }
         }
+        $arr_rows[10] = array('Other', $ttl_count);
         
         $this->printGraph('hosts_followers', array('nb'), $arr_rows);
 
         // Clients
         // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
         $arr_rows = array();
+        arsort($this->gc->arr_clients, SORT_NUMERIC);
+        $ttl_count = 0;
         foreach($this->gc->arr_clients as $client => $count) {
-            $arr_rows[] = array($client, $count);
+            if(count($arr_rows) < 9) {
+                $arr_rows[] = array($client, $count);
+            }
+            else {
+                $ttl_count += $count;
+            }
         }
+        $arr_rows[10] = array('Other', $ttl_count);
 
         $this->printGraph('clients', array('nb'), $arr_rows);
 
         // Reply-to
         // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
         $arr_rows = array();
+        arsort($this->gc->arr_replies, SORT_NUMERIC);
+        $ttl_count = 0;
         foreach($this->gc->arr_replies as $reply => $count) {
-            $arr_rows[] = array($reply, $count);
+            if(count($arr_rows) < 9) {
+                $arr_rows[] = array($reply, $count);
+            }
+            else {
+                $ttl_count += $count;
+            }
         }
+        $arr_rows[10] = array('Other', $ttl_count);
 
         $this->printGraph('replies', array('nb'), $arr_rows);
 

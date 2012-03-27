@@ -54,13 +54,6 @@ require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
  */
 class Social_analytics extends Memcached_DataObject
 {
-    public $__table = 'social_analytics'; // table name
-    public $user_id;                      // int(4)  primary_key not_null
-    public $last_updated;                 // datetime
-    public $avg_posts_day;                // int(4)
-    public $avg_follows_day;              // int(4)
-    public $avg_followers_day;            // int(4)
-
     /**
      * Get an instance by key
      *
