@@ -106,10 +106,11 @@ class SocialAction extends Action
 
     function printNavigation($current_month) {
         $month = clone($current_month);
+    	$url = common_local_url('social');
 
         $this->elementStart('ul', array('class' => 'social_nav'));
         $this->elementStart('li', array('class' => 'prev'));
-        $this->element('a', array('href' => '/social?month=' . $month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
+        $this->element('a', array('href' => $url . '?month=' . $month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
         $this->elementEnd('li');
 
         // Don't generate a 'next' link if the next month is in the future
@@ -117,7 +118,7 @@ class SocialAction extends Action
 //        if($today->format('Y-m') >= $month->modify('+2 month')->format('Y-m')) {
         if($today >= $month->modify('+2 month')) {
             $this->elementStart('li', array('class' => 'next'));
-            $this->element('a', array('href' => '/social?month=' . $month->format('Y-m')), _m('Next Month'));
+            $this->element('a', array('href' => $url . '?month=' . $month->format('Y-m')), _m('Next Month'));
             $this->elementEnd('li');
         }
         $this->elementEnd('ul');
@@ -135,6 +136,7 @@ class SocialAction extends Action
 
         // Table
         $this->elementStart('table', array('class' => 'social_table ' . $name . '_table'));
+        $this->elementStart('thead');
         $this->elementStart('tr');
         $this->element('td');
 
@@ -149,8 +151,9 @@ class SocialAction extends Action
             $this->element('th', null, 'nb');
         }
         $this->elementEnd('tr');
-
+        $this->elementEnd('thead');
         // Data rows
+        $this->elementStart('tbody');
         foreach($rows as $date => $data) {
             $this->elementStart('tr');
             $this->element('th', null, $date);
@@ -164,7 +167,7 @@ class SocialAction extends Action
             }
             $this->elementEnd('tr');
         }
-
+        $this->elementEnd('tbody');
         $this->elementEnd('table');
     }
 
