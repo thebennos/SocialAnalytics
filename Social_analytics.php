@@ -148,39 +148,51 @@ class Social_analytics extends Memcached_DataObject
         $gc = new Social_analytics();
         $gc->user_id = $user_id;
 
+        // Figure out which month to get stats for
         if(!$target_month) {
             $target_month = new DateTime('first day of this month');
         }
         else {
             $target_month = new DateTime($target_month . '-01');
         }
-
         $gc->month = $target_month;
+
 
         $ttl_notices = 0;
         $gc->arr_notices = array();
 
+        // The list of graphs we'll be generating
+        $gc->graphs = array(
+            'trends' => array(),
+            'hosts_following' => array(),
+            'hosts_followers' => array(),
+            'clients' => array(),
+            'replies' => array()
+        );
+
+        // Populate dates of the month in the "Trends" graph
+        $i_date = clone($target_month);
+        while($i_date->format('m') == $target_month->format('m')) {
+            $gc->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => 0, 'following' => 0, 'followers' => 0);
+            $i_date->modify('+1 day');
+        }
+
+        // Gather "Notice" information from db and place into appropriate arrays
         $notices = Memcached_DataObject::listGet('Notice', 'profile_id', array($user_id));
         $date_created = new DateTime();
         foreach($notices[1] as $notice) {
-            // Get date notice was created
-            try {
-                $date_created->modify($notice->created);
-            } catch(Exception $e) {
-                // TODO: log/display error
-                continue;
-            }
+            $date_created->modify($notice->created);
 
             if($date_created->format('Y-m') == $target_month->format('Y-m')) {
-                $gc->arr_clients[$notice->source]++;
+                $gc->graphs['clients'][$notice->source]++;
 
                 if($notice->reply_to) {
                     $reply_to = Notice::staticGet('id', $notice->reply_to);
                     $repliee = Profile::staticGet('id', $reply_to->profile_id);
-                    $gc->arr_replies[$repliee->nickname]++;
+                    $gc->graphs['replies'][$repliee->nickname]++;
                 }
 
-                $gc->arr_notices[$date_created->format('Y-m-d')]++;
+                $gc->graphs['trends'][$date_created->format('Y-m-d')]['notices']++;
                 $ttl_notices++;
             }
             else {
@@ -190,7 +202,6 @@ class Social_analytics extends Memcached_DataObject
 
         // FIXME: Copy/paste is bad, mmkay? (Create object-agnostic version of this and above and below)
         $ttl_following = 0;
-        $gc->arr_following_hosts = array();
         $arr_following = Memcached_DataObject::listGet('Subscription', 'subscriber', array($user_id));
         foreach($arr_following[1] as $following) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
@@ -198,24 +209,19 @@ class Social_analytics extends Memcached_DataObject
                 continue;
             }
 
-            try {
-                $date_created->modify($following->created);
-            } catch(Exception $e) {
-                // TODO: log/display error
-                continue;
-            }
+            $date_created->modify($following->created);
 
             if($date_created->format('Y-m') == $target_month->format('Y-m')) {
-                $gc->arr_following[$date_created->format('Y-m-d')]++;
+                $gc->graphs['trends'][$date_created->format('Y-m-d')]['following']++;
                 $profile = Profile::staticGet('id', $following->subscribed);
 
-                $gc->arr_following_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $gc->graphs['hosts_following'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
             elseif($date_created->format('Y-m') < $target_month->format('Y-m')) {
                 $ttl_following++;
                 $profile = Profile::staticGet('id', $following->subscribed);
 
-                $gc->arr_following_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $gc->graphs['hosts_following'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
                 continue; // NOTE: Why is this here?
             }
         }
@@ -224,7 +230,6 @@ class Social_analytics extends Memcached_DataObject
 
         // FIXME: Redundant code (see above)
         $ttl_followers = 0;
-        $gc->arr_followers_hosts = array();
         $arr_followers = Memcached_DataObject::listGet('Subscription', 'subscribed', array($user_id));
         foreach($arr_followers[1] as $follower) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
@@ -232,29 +237,33 @@ class Social_analytics extends Memcached_DataObject
                 continue;
             }
 
-            try {
-                $date_created->modify($follower->created);
-            } catch(Exception $e) {
-                // TODO: log/display error
-                continue;
-            }
+            $date_created->modify($follower->created);
 
             if($date_created->format('Y-m') == $target_month->format('Y-m')) {
-                $gc->arr_followers[$date_created->format('Y-m-d')]++;
+                $gc->graphs['trends'][$date_created->format('Y-m-d')]['followers']++;
                 $profile = Profile::staticGet('id', $follower->subscriber);
 
-                $gc->arr_followers_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $gc->graphs['hosts_followers'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
             elseif($date_created->format('Y-m') < $target_month->format('Y-m')) {
                 $ttl_followers++;
                 $profile = Profile::staticGet('id', $follower->subscriber);
 
-                $gc->arr_followers_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $gc->graphs['hosts_followers'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
                 continue; // NOTE: Why is this here?
             }
         }
 
         $gc->ttl_followers = $ttl_followers;
+
+        foreach($gc->graphs['trends'] as &$day) {
+            $day['followers'] += $ttl_followers;
+            $ttl_followers = $day['followers'];
+
+            $day['following'] += $ttl_following;
+            $ttl_following = $day['following'];
+        }
+
         return $gc;
     }
 }
