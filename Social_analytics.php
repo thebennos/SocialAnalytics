@@ -162,7 +162,7 @@ class Social_analytics extends Memcached_DataObject
 
         $notices = Memcached_DataObject::listGet('Notice', 'profile_id', array($user_id));
         $date_created = new DateTime();
-        foreach($notices[1] as $notice) {
+        foreach($notices[$user_id] as $notice) {
             // Get date notice was created
             try {
                 $date_created->modify($notice->created);
@@ -192,7 +192,7 @@ class Social_analytics extends Memcached_DataObject
         $ttl_following = 0;
         $gc->arr_following_hosts = array();
         $arr_following = Memcached_DataObject::listGet('Subscription', 'subscriber', array($user_id));
-        foreach($arr_following[1] as $following) {
+        foreach($arr_following[$user_id] as $following) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
             if($following->subscriber == $following->subscribed) {
                 continue;
@@ -226,7 +226,7 @@ class Social_analytics extends Memcached_DataObject
         $ttl_followers = 0;
         $gc->arr_followers_hosts = array();
         $arr_followers = Memcached_DataObject::listGet('Subscription', 'subscribed', array($user_id));
-        foreach($arr_followers[1] as $follower) {
+        foreach($arr_followers[$user_id] as $follower) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
             if($follower->subscriber == $follower->subscribed) {
                 continue;
