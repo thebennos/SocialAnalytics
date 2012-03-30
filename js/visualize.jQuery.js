@@ -494,8 +494,11 @@ $(document).ready(function(){
     $('.clients_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
         .appendTo('.clients_graph');
 
-    $('.replies_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
-        .appendTo('.replies_graph');
+    $('.people_you_replied_to_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
+        .appendTo('.people_you_replied_to_graph');
+
+    $('.people_who_mentioned_you_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
+        .appendTo('.people_who_mentioned_you_graph');
 
     $('.toggleTable').click(function(e){
         e.preventDefault();

@@ -148,6 +148,7 @@ class Social_analytics extends Memcached_DataObject
         $gc = new Social_analytics();
         $gc->user_id = $user_id;
 
+
         if(!$target_month) {
             $target_month = new DateTime('first day of this month');
         }
@@ -185,6 +186,21 @@ class Social_analytics extends Memcached_DataObject
             }
             else {
                 continue;
+            }
+        }
+
+        // FIXME: streamline, yada, yada...
+        $ttl_mentions = 0;
+        $gc->arr_mentions = array();
+        $arr_mentions = Memcached_DataObject::listGet('Reply', 'profile_id', array($user_id));
+        foreach($arr_mentions[$user_id] as $mention) {
+            $date_created->modify($mention->modified);
+            if($date_created->format('Y-m') == $target_month->format('Y-m')) {
+//                $gc->arr_mentions[$date_created->format('Y-m-d')]++;
+                $notice = Notice::staticGet('id', $mention->notice_id);
+                $profile = Profile::staticGet('id', $notice->profile_id);
+                $gc->arr_mentions[$profile->nickname]++;
+                $ttl_mentions++;
             }
         }
 

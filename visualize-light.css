@@ -30,7 +30,11 @@ body .visualize {margin: 0 30px 10px 30px; padding: 0;}
   background-position: 0 -188px;
   padding-left: 25px;
 }
-div.replies_graph ul.visualize-key li, div.clients_graph ul.visualize-key li, div.hosts_following_graph ul.visualize-key li, div.hosts_followers_graph ul.visualize-key li {float: none;}
+
+div.social_graph ul.visualize-key li {float: none;}
+div.trends_graph ul.visualize-key li {float: left;}
+div.trends_graph ul.visualize-key {width: 100%;}
+
 div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
 
 /*visualize extension styles*/

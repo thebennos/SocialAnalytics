@@ -269,7 +269,7 @@ class SocialAction extends Action
 
         $this->printGraph('clients', array('nb'), $arr_rows);
 
-        // Reply-to
+        // People you replied to
         // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
         $arr_rows = array();
         arsort($this->gc->arr_replies, SORT_NUMERIC);
@@ -284,7 +284,24 @@ class SocialAction extends Action
         }
         $arr_rows[10] = array('Other', $ttl_count);
 
-        $this->printGraph('replies', array('nb'), $arr_rows);
+        $this->printGraph('people_you_replied_to', array('nb'), $arr_rows);
+
+        // People who replied to you
+        // TODO: Same as other TODOs
+        $arr_rows = array();
+        arsort($this->gc->arr_mentions, SORT_NUMERIC);
+        $ttl_count = 0;
+        foreach($this->gc->arr_mentions as $mention => $count) {
+            if(count($arr_rows) < 9) {
+                $arr_rows[] = array($mention, $count);
+            }
+            else {
+                $ttl_count += $count;
+            }
+        }
+        $arr_rows[10] = array('Other', $ttl_count);
+
+        $this->printGraph('people_who_mentioned_you', array('nb'), $arr_rows);
 
         $this->printNavigation($this->gc->month);
     }
