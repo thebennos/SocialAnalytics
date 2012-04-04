@@ -132,7 +132,7 @@ class SocialAction extends Action
         $this->element('div', array('class' => 'social_graph ' . $name . '_graph'));
 
         // Toggle link
-        $this->element('a', array('class' => 'toggleTable', 'href' => '#'), _m('Show ' . str_replace('_', ' ', $name) . ' table'));
+        $this->element('a', array('class' => 'toggleTable', 'href' => '#'), _m('Show "' . str_replace('_', ' ', $name) . '" table'));
 
         // Data table
         $this->elementStart('table', array('class' => 'social_table ' . $name . '_table'));
@@ -233,7 +233,7 @@ class SocialAction extends Action
         }
         $arr_rows[10] = array('Other', $ttl_count);
 
-        $this->printGraph('hosts_following', array('nb'), $arr_rows);
+        $this->printGraph('hosts_you_are_following', array('nb'), $arr_rows);
 
         // Followers Hosts
         // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
@@ -250,7 +250,7 @@ class SocialAction extends Action
         }
         $arr_rows[10] = array('Other', $ttl_count);
         
-        $this->printGraph('hosts_followers', array('nb'), $arr_rows);
+        $this->printGraph('hosts_who_follow_you', array('nb'), $arr_rows);
 
         // Clients
         // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method

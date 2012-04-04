@@ -485,11 +485,11 @@ $(document).ready(function(){
         $(this).wrapInner($link);
     });
 
-    $('.hosts_following_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
-        .appendTo('.hosts_following_graph');
+    $('.hosts_you_are_following_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
+        .appendTo('.hosts_you_are_following_graph');
 
-    $('.hosts_followers_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
-        .appendTo('.hosts_followers_graph');
+    $('.hosts_who_follow_you_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
+        .appendTo('.hosts_who_follow_you_graph');
     
     $('.clients_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
         .appendTo('.clients_graph');
