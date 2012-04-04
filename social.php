@@ -43,7 +43,7 @@ if (!defined('STATUSNET')) {
 class SocialAction extends Action
 {
     var $user = null;
-    var $gc   = null;
+    var $sa   = null;
 
     /**
      * Take arguments for running
@@ -67,7 +67,7 @@ class SocialAction extends Action
         $this->user = common_current_user();
 
         if (!empty($this->user)) {
-            $this->gc = Social_analytics::dailyAvgs($this->user->id, $_REQUEST['month']);
+            $this->sa = Social_analytics::init($this->user->id, $_REQUEST['month']);
         }
 
         return true;
@@ -115,7 +115,6 @@ class SocialAction extends Action
 
         // Don't generate a 'next' link if the next month is in the future
         $today = new DateTime();
-//        if($today->format('Y-m') >= $month->modify('+2 month')->format('Y-m')) {
         if($today >= $month->modify('+2 month')) {
             $this->elementStart('li', array('class' => 'next'));
             $this->element('a', array('href' => $url . '?month=' . $month->format('Y-m')), _m('Next Month'));
@@ -124,7 +123,7 @@ class SocialAction extends Action
         $this->elementEnd('ul');
     }
 
-    function printGraph($name, $headers, $rows) {
+    function printGraph($name, $rows) {
         // Title
         $this->element('h3', null, ucfirst(str_replace('_', ' ', _m($name))));
 
@@ -134,24 +133,51 @@ class SocialAction extends Action
         // Toggle link
         $this->element('a', array('class' => 'toggleTable', 'href' => '#'), _m('Show "' . str_replace('_', ' ', $name) . '" table'));
 
-        // Data table
+        // Table
         $this->elementStart('table', array('class' => 'social_table ' . $name . '_table'));
         $this->elementStart('thead');
         $this->elementStart('tr');
         $this->element('td');
-        // First row (headers)
-        foreach($headers as $header) {
-            $this->element('th', null, $header);
+
+        // FIXME: This is hackish
+        if($name != 'trends') { // Ignore the 'trends' table since it's ok to have more than 10 rows
+            $nb_rows = count($rows);
+
+            if($nb_rows > 9) { // For other tables, limit the rows to 9 and shove everything else in 'other'
+                arsort($rows, SORT_NUMERIC);
+                $keys = array_keys($rows);
+                for($i=9; $i<$nb_rows; $i++) {
+                    $other += $rows[$keys[$i]]; // Sum of items in 'other'
+                    unset($rows[$keys[$i]]); // Remove original item from array
+                }
+                $rows['other'] = $other; // Add 'other' to array
+            }
+        }
+
+        // Top headers
+        $foo = reset($rows);
+        if(is_array($foo)) {
+            foreach($foo as $bar => $meh) {
+                $this->element('th', null, $bar);
+            }
+        }
+        else {
+            $this->element('th', null, 'nb');
         }
         $this->elementEnd('tr');
         $this->elementEnd('thead');
         // Data rows
         $this->elementStart('tbody');
-        foreach($rows as $row) {
+        foreach($rows as $date => $data) {
             $this->elementStart('tr');
-            $this->element('th', null, array_shift($row)); // First cell is a header
-            foreach($row as $cell) {
-                $this->element('td', null, $cell); // The rest are data
+            $this->element('th', null, $date);
+            if(is_array($data)) {
+                foreach($data as $cell) {
+                    $this->element('td', null, $cell);
+                }
+            }
+            else {
+                $this->element('td', null, $data);
             }
             $this->elementEnd('tr');
         }
@@ -182,128 +208,14 @@ class SocialAction extends Action
         }
 
         // Print month and month navigation
-        $this->element('h2', null, sprintf(_m('%s, %d'), $this->gc->month->format('F'), $this->gc->month->format(Y)));
-        $this->printNavigation($this->gc->month);
+        $this->element('h2', null, sprintf(_m('%s, %d'), $this->sa->month->format('F'), $this->sa->month->format(Y)));
+        $this->printNavigation($this->sa->month);
 
-        // Date iterator
-        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
-        $i_date = clone($this->gc->month);
-        $ttl_following = $this->gc->ttl_following;
-        $ttl_followers = $this->gc->ttl_followers;
-        $avg_notices = 0;
-
-        $arr_rows = array();
-        $today = new DateTime();
-        while($i_date->format('m') == $this->gc->month->format('m')) {
-            if($i_date->format('Y-m-d') == $today->format('Y-m-d')) {
-                break;
-            }
-
-            $ttl_following += intval($this->gc->arr_following[$i_date->format('Y-m-d')]);
-            $ttl_followers += intval($this->gc->arr_followers[$i_date->format('Y-m-d')]);
-            $avg_notices += intval($this->gc->arr_notices[$i_date->format('Y-m-d')]);
-
-            $arr_rows[] = array(
-                $i_date->format('Y-m-d'), 
-                intval($this->gc->arr_notices[$i_date->format('Y-m-d')]),
-                $ttl_following,
-                $ttl_followers
-            );
-
-            $i_date->modify('+1 day');
+        foreach($this->sa->graphs as $title => $graph) {
+            $this->printGraph($title, $graph);
         }
 
-        // FIXME: Potentially dividing by zero, the universe could implode.
-        $avg_notices = round($avg_notices/count($arr_rows));
-        $this->printGraph('trends', array('Notices', 'Following', 'Followers'), $arr_rows);
-        $this->element('p', null, _m("Daily average for this month: $avg_notices"));
-
-        // Following Hosts
-        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
-        $arr_rows = array();
-        arsort($this->gc->arr_following_hosts, SORT_NUMERIC);
-        $ttl_count = 0;
-        foreach($this->gc->arr_following_hosts as $host => $count) {
-            if(count($arr_rows) < 9) {
-                $arr_rows[] = array($host, $count);
-            }
-            else {
-                $ttl_count += $count;
-            }
-        }
-        $arr_rows[10] = array('Other', $ttl_count);
-
-        $this->printGraph('hosts_you_are_following', array('nb'), $arr_rows);
-
-        // Followers Hosts
-        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
-        $arr_rows = array();
-        arsort($this->gc->arr_followers_hosts, SORT_NUMERIC);
-        $ttl_count = 0;
-        foreach($this->gc->arr_followers_hosts as $host => $count) {
-            if(count($arr_rows) < 9) {
-                $arr_rows[] = array($host, $count);
-            }
-            else {
-                $ttl_count += $count;
-            }
-        }
-        $arr_rows[10] = array('Other', $ttl_count);
-        
-        $this->printGraph('hosts_who_follow_you', array('nb'), $arr_rows);
-
-        // Clients
-        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
-        $arr_rows = array();
-        arsort($this->gc->arr_clients, SORT_NUMERIC);
-        $ttl_count = 0;
-        foreach($this->gc->arr_clients as $client => $count) {
-            if(count($arr_rows) < 9) {
-                $arr_rows[] = array($client, $count);
-            }
-            else {
-                $ttl_count += $count;
-            }
-        }
-        $arr_rows[10] = array('Other', $ttl_count);
-
-        $this->printGraph('clients', array('nb'), $arr_rows);
-
-        // People you replied to
-        // TODO: Consider doing this in Social_analytics.php and have the data properly formatted once we enter this method
-        $arr_rows = array();
-        arsort($this->gc->arr_replies, SORT_NUMERIC);
-        $ttl_count = 0;
-        foreach($this->gc->arr_replies as $reply => $count) {
-            if(count($arr_rows) < 9) {
-                $arr_rows[] = array($reply, $count);
-            }
-            else {
-                $ttl_count += $count;
-            }
-        }
-        $arr_rows[10] = array('Other', $ttl_count);
-
-        $this->printGraph('people_you_replied_to', array('nb'), $arr_rows);
-
-        // People who replied to you
-        // TODO: Same as other TODOs
-        $arr_rows = array();
-        arsort($this->gc->arr_mentions, SORT_NUMERIC);
-        $ttl_count = 0;
-        foreach($this->gc->arr_mentions as $mention => $count) {
-            if(count($arr_rows) < 9) {
-                $arr_rows[] = array($mention, $count);
-            }
-            else {
-                $ttl_count += $count;
-            }
-        }
-        $arr_rows[10] = array('Other', $ttl_count);
-
-        $this->printGraph('people_who_mentioned_you', array('nb'), $arr_rows);
-
-        $this->printNavigation($this->gc->month);
+        $this->printNavigation($this->sa->month);
     }
 
     /**

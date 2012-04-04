@@ -55,158 +55,75 @@ require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 class Social_analytics extends Memcached_DataObject
 {
     /**
-     * Get an instance by key
-     *
-     * This is a utility method to get a single instance with a given key value.
-     *
-     * @param string $k Key to use to lookup (usually 'user_id' for this class)
-     * @param mixed  $v Value to lookup
-     *
-     * @return Social_analytics object found, or null for no hits
+     * TODO: Document 
      */
-    function staticGet($k, $v=null)
+    static function init($user_id, $target_month=NULL)
     {
-        return Memcached_DataObject::staticGet('Social_analytics', $k, $v);
-    }
-
-    /**
-     * return key definitions for DB_DataObject
-     *
-     * DB_DataObject needs to know about keys that the table has, since it
-     * won't appear in StatusNet's own keys list. In most cases, this will
-     * simply reference your keyTypes() function.
-     *
-     * @return array list of key field names
-     */
-    function keys()
-    {
-        return array_keys($this->keyTypes());
-    }
-
-    /**
-     * return key definitions for Memcached_DataObject
-     *
-     * Our caching system uses the same key definitions, but uses a different
-     * method to get them. This key information is used to store and clear
-     * cached data, so be sure to list any key that will be used for static
-     * lookups.
-     *
-     * @return array associative array of key definitions, field name to type:
-     *         'K' for primary key: for compound keys, add an entry for each component;
-     *         'U' for unique keys: compound keys are not well supported here.
-     */
-    function keyTypes()
-    {
-        return array('user_id' => 'K');
-    }
-
-    /**
-     * Magic formula for non-autoincrementing integer primary keys
-     *
-     * If a table has a single integer column as its primary key, DB_DataObject
-     * assumes that the column is auto-incrementing and makes a sequence table
-     * to do this incrementation. Since we don't need this for our class, we
-     * overload this method and return the magic formula that DB_DataObject needs.
-     *
-     * @return array magic three-false array that stops auto-incrementing.
-     */
-    function sequenceKey()
-    {
-        return array(false, false, false);
-    }
-
-
-    /**
-     * Get an instance by compound key
-     *
-     * This is a utility method to get a single instance with a given set of
-     * key-value pairs. Usually used for the primary key for a compound key; thus
-     * the name.
-     *
-     * @param array $kv array of key-value mappings
-     *
-     * @return Social_analytics object found, or null for no hits
-     *
-     */
-    function pkeyGet($kv)
-    {
-        return Memcached_DataObject::pkeyGet('Social_analytics', $kv);
-    }
-
-    /**
-     * Increment a user's greeting count and return instance
-     *
-     * This method handles the ins and outs of creating a new greeting_count for a
-     * user or fetching the existing greeting count and incrementing its value.
-     *
-     * @param integer $user_id ID of the user to get a count for
-     *
-     * @return User_greeting_count instance for this user, with count already incremented.
-     */
-    static function dailyAvgs($user_id, $target_month=NULL)
-    {
-        $gc = new Social_analytics();
-        $gc->user_id = $user_id;
-
-
-        if(!$target_month) {
-            $target_month = new DateTime('first day of this month');
-        }
-        else {
-            $target_month = new DateTime($target_month . '-01');
-        }
-
-        $gc->month = $target_month;
+        $sa = new Social_analytics();
+        $sa->user_id = $user_id;
+        $sa->month = (!$target_month) ? new DateTime('first day of this month') : new DateTime($target_month . '-01');
 
         $ttl_notices = 0;
-        $gc->arr_notices = array();
 
+        // The list of graphs we'll be generating
+        $sa->graphs = array(
+            'trends' => array(),
+            'hosts_you_are_following' => array(),
+            'hosts_who_follow_you' => array(),
+            'clients' => array(),
+            'people_you_replied_to' => array(),
+            'people_who_mentioned_you' => array()
+        );
+
+        // Initialize 'trends' table. We do this now since we know which rows we need in advance (all non-future days of month)
+        $i_date = clone($sa->month);
+        $today = new DateTime();
+        while($i_date->format('m') == $sa->month->format('m')) {
+            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => 0, 'following' => 0, 'followers' => 0);
+
+            // Do not process dates from the future
+            if($i_date->format('Y-m-d') == $today->format('Y-m-d')) {
+                break;
+            }            
+            $i_date->modify('+1 day');
+        }
+
+        // Gather "Notice" information from db and place into appropriate arrays
         $notices = Memcached_DataObject::listGet('Notice', 'profile_id', array($user_id));
         $date_created = new DateTime();
-        foreach($notices[$user_id] as $notice) {
-            // Get date notice was created
-            try {
-                $date_created->modify($notice->created);
-            } catch(Exception $e) {
-                // TODO: log/display error
-                continue;
-            }
 
-            if($date_created->format('Y-m') == $target_month->format('Y-m')) {
-                $gc->arr_clients[$notice->source]++;
+        foreach($notices[$user_id] as $notice) {
+            $date_created->modify($notice->created);
+
+            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
+                $sa->graphs['clients'][$notice->source]++;
 
                 if($notice->reply_to) {
                     $reply_to = Notice::staticGet('id', $notice->reply_to);
                     $repliee = Profile::staticGet('id', $reply_to->profile_id);
-                    $gc->arr_replies[$repliee->nickname]++;
+                    $sa->graphs['people_you_replied_to'][$repliee->nickname]++;
                 }
 
-                $gc->arr_notices[$date_created->format('Y-m-d')]++;
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['notices']++;
                 $ttl_notices++;
-            }
-            else {
-                continue;
             }
         }
 
-        // FIXME: streamline, yada, yada...
+        // People who mentioned you
         $ttl_mentions = 0;
-        $gc->arr_mentions = array();
-        $arr_mentions = Memcached_DataObject::listGet('Reply', 'profile_id', array($user_id));
-        foreach($arr_mentions[$user_id] as $mention) {
+        $mentions = Memcached_DataObject::listGet('Reply', 'profile_id', array($user_id));
+        foreach($mentions[$user_id] as $mention) {
             $date_created->modify($mention->modified);
-            if($date_created->format('Y-m') == $target_month->format('Y-m')) {
-//                $gc->arr_mentions[$date_created->format('Y-m-d')]++;
+            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
                 $notice = Notice::staticGet('id', $mention->notice_id);
                 $profile = Profile::staticGet('id', $notice->profile_id);
-                $gc->arr_mentions[$profile->nickname]++;
+                $sa->graphs['people_who_mentioned_you'][$profile->nickname]++;
                 $ttl_mentions++;
             }
         }
 
-        // FIXME: Copy/paste is bad, mmkay? (Create object-agnostic version of this and above and below)
+        // Hosts you are following
         $ttl_following = 0;
-        $gc->arr_following_hosts = array();
         $arr_following = Memcached_DataObject::listGet('Subscription', 'subscriber', array($user_id));
         foreach($arr_following[$user_id] as $following) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
@@ -214,63 +131,59 @@ class Social_analytics extends Memcached_DataObject
                 continue;
             }
 
-            try {
-                $date_created->modify($following->created);
-            } catch(Exception $e) {
-                // TODO: log/display error
-                continue;
-            }
+            $date_created->modify($following->created); // Convert string to DateTime
 
-            if($date_created->format('Y-m') == $target_month->format('Y-m')) {
-                $gc->arr_following[$date_created->format('Y-m-d')]++;
+            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['following']++;
                 $profile = Profile::staticGet('id', $following->subscribed);
 
-                $gc->arr_following_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $sa->graphs['hosts_you_are_following'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
-            elseif($date_created->format('Y-m') < $target_month->format('Y-m')) {
+            elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
                 $ttl_following++;
-                $profile = Profile::staticGet('id', $following->subscribed);
 
-                $gc->arr_following_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
-                continue; // NOTE: Why is this here?
+                $profile = Profile::staticGet('id', $following->subscribed);
+                $sa->graphs['hosts_you_are_following'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
         }
 
-        $gc->ttl_following = $ttl_following;
+        $sa->ttl_following = $ttl_following;
 
-        // FIXME: Redundant code (see above)
+        // Hosts who follow you
         $ttl_followers = 0;
-        $gc->arr_followers_hosts = array();
-        $arr_followers = Memcached_DataObject::listGet('Subscription', 'subscribed', array($user_id));
-        foreach($arr_followers[$user_id] as $follower) {
+        $followers = Memcached_DataObject::listGet('Subscription', 'subscribed', array($user_id));
+        foreach($followers[$user_id] as $follower) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
             if($follower->subscriber == $follower->subscribed) {
                 continue;
             }
 
-            try {
-                $date_created->modify($follower->created);
-            } catch(Exception $e) {
-                // TODO: log/display error
-                continue;
-            }
+            $date_created->modify($follower->created); // Convert string to DateTime
 
-            if($date_created->format('Y-m') == $target_month->format('Y-m')) {
-                $gc->arr_followers[$date_created->format('Y-m-d')]++;
+            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['followers']++;
                 $profile = Profile::staticGet('id', $follower->subscriber);
 
-                $gc->arr_followers_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $sa->graphs['hosts_who_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
-            elseif($date_created->format('Y-m') < $target_month->format('Y-m')) {
+            elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
                 $ttl_followers++;
-                $profile = Profile::staticGet('id', $follower->subscriber);
 
-                $gc->arr_followers_hosts[parse_url($profile->profileurl, PHP_URL_HOST)]++;
-                continue; // NOTE: Why is this here?
+                $profile = Profile::staticGet('id', $follower->subscriber);
+                $sa->graphs['hosts_who_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
         }
 
-        $gc->ttl_followers = $ttl_followers;
-        return $gc;
+        $sa->ttl_followers = $ttl_followers;
+
+        foreach($sa->graphs['trends'] as &$day) {
+            $day['followers'] += $ttl_followers;
+            $ttl_followers = $day['followers'];
+
+            $day['following'] += $ttl_following;
+            $ttl_following = $day['following'];
+        }
+
+        return $sa;
     }
 }
