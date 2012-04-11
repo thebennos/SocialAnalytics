@@ -4,11 +4,11 @@
  *
  * PHP version 5
  *
- * @category Sample
+ * @category Plugin
  * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
+ * @author   Stéphane Bérubé <chimo@chromic.org>
  * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @link     http://github.com/chimo/SocialAnalytics
  *
  * StatusNet - the distributed open-source microblogging tool
  * Copyright (C) 2009, StatusNet, Inc.

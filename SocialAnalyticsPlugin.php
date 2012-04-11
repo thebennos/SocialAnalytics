@@ -171,7 +171,7 @@ class SocialAnalyticsPlugin extends Plugin
     function onPluginVersion(&$versions)
     {
         $versions[] = array('name' => 'Social Analytics',
-                            'version' => STATUSNET_VERSION,
+                            'version' => '0.1.1',
                             'author' => 'Stéphane Bérubé',
                             'homepage' => 'http://status.net/wiki/Plugin:SocialAnalytics',
                             'rawdescription' =>
