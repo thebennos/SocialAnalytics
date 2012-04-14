@@ -79,7 +79,7 @@ class Social_analytics extends Memcached_DataObject
         $i_date = clone($sa->month);
         $today = new DateTime();
         while($i_date->format('m') == $sa->month->format('m')) {
-            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => 0, 'following' => 0, 'followers' => 0);
+            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => 0, 'following' => 0, 'followers' => 0, 'faves' => 0);
 
             // Do not process dates from the future
             if($i_date->format('Y-m-d') == $today->format('Y-m-d')) {
@@ -109,6 +109,16 @@ class Social_analytics extends Memcached_DataObject
             }
         }
 
+        // Notices you've favored
+        $faved = Memcached_DataObject::listGet('Fave', 'user_id', array($user_id));
+        foreach($faved[$user_id] as $fave) {
+            $date_created->modify($fave->modified);
+            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
+//                $notice = Notice::staticGet('id', $fave->notice_id); // TODO: This will be useful when we provide details in the data table
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['faves']++;
+            }
+        }
+
         // People who mentioned you
         $ttl_mentions = 0;
         $mentions = Memcached_DataObject::listGet('Reply', 'profile_id', array($user_id));
@@ -121,6 +131,9 @@ class Social_analytics extends Memcached_DataObject
                 $ttl_mentions++;
             }
         }
+
+
+        // Your notices favored by others
 
         // Hosts you are following
         $ttl_following = 0;

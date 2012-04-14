@@ -203,7 +203,7 @@ class SocialAction extends Action
         if (empty($this->user)) {
             $this->element('p', array('class' => 'greeting'),
                            // TRANS: Message in sample plugin.
-                           _m('You need to be logged in to view this page'));
+                           _m('You need to be logged in to view this page')); // TODO: Redirect to login page, then return to /social
             return;
         }
 
