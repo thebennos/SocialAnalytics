@@ -5,6 +5,8 @@
 #social #aside_primary {display: none;}
 #social #aside_primary_wrapper {background-color: #FFF;}
 #social .input_forms {display: none;}
+#social p.summary {margin: 0;}
+#social ul.summary {margin: 0 0 12px 20px;}
 
 /*plugin styles*/
 .visualize { border: 1px solid #888; position: relative; background: #fafafa; }

@@ -207,14 +207,49 @@ class SocialAction extends Action
             return;
         }
 
-        // Print month and month navigation
+        // Month
         $this->element('h2', null, sprintf(_m('%s, %d'), $this->sa->month->format('F'), $this->sa->month->format(Y)));
+
+        // Navigation
         $this->printNavigation($this->sa->month);
 
+        // Summary
+        $this->element('h3', null, 'Summary');
+        $this->element('p', array('class' => 'summary'), 'This month, you:');
+        $this->elementStart('ul', array('class' => 'summary'));
+
+        $this->elementStart('li');
+        $this->text('posted ' . $this->sa->ttl_notices . ' notice(s). (Daily avg: ' . round($this->sa->ttl_notices/count($this->sa->graphs['trends'])) . ')');
+        $this->elementEnd('li');
+
+        $this->elementStart('li');
+        $this->text('followed ' . $this->sa->ttl_following . ' new people');
+        $this->elementEnd('li');
+
+        $this->elementStart('li');
+        $this->text('gained ' . $this->sa->ttl_followers . ' followers');
+        $this->elementEnd('li');
+
+        $this->elementStart('li');
+        $this->text('favorited ' . $this->sa->ttl_faves . ' notices');
+        $this->elementEnd('li');
+
+        $this->elementStart('li');
+        $this->text('had people favor your notices ' . $this->sa->ttl_o_faved . ' times');
+        $this->elementEnd('li');
+
+        $this->elementStart('li');
+        $this->text('were mentioned ' . $this->sa->ttl_mentions . ' times');
+        $this->elementEnd('li');
+
+        $this->elementEnd('ul');
+
+        // Graphs
         foreach($this->sa->graphs as $title => $graph) {
             $this->printGraph($title, $graph);
         }
 
+        // Navigation
         $this->printNavigation($this->sa->month);
     }
 

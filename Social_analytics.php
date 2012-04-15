@@ -63,7 +63,7 @@ class Social_analytics extends Memcached_DataObject
         $sa->user_id = $user_id;
         $sa->month = (!$target_month) ? new DateTime('first day of this month') : new DateTime($target_month . '-01');
 
-        $ttl_notices = 0;
+        $sa->ttl_notices = 0;
 
         // The list of graphs we'll be generating
         $sa->graphs = array(
@@ -79,7 +79,7 @@ class Social_analytics extends Memcached_DataObject
         $i_date = clone($sa->month);
         $today = new DateTime();
         while($i_date->format('m') == $sa->month->format('m')) {
-            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => 0, 'following' => 0, 'followers' => 0, 'faves' => 0);
+            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => 0, 'following' => 0, 'followers' => 0, 'faves' => 0, 'o_faved' => 0);
 
             // Do not process dates from the future
             if($i_date->format('Y-m-d') == $today->format('Y-m-d')) {
@@ -105,22 +105,30 @@ class Social_analytics extends Memcached_DataObject
                 }
 
                 $sa->graphs['trends'][$date_created->format('Y-m-d')]['notices']++;
-                $ttl_notices++;
+                $sa->ttl_notices++;
             }
         }
 
-        // Notices you've favored
-        $faved = Memcached_DataObject::listGet('Fave', 'user_id', array($user_id));
-        foreach($faved[$user_id] as $fave) {
+        // Favored notices (both by 'you' and 'others')
+        $sa->ttl_faves = 0;
+        $sa->ttl_o_faved = 0;
+        $faved = Memcached_DataObject::cachedQuery('Fave', 'SELECT * FROM fave');
+        foreach($faved->_items as $fave) {
             $date_created->modify($fave->modified);
             if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
-//                $notice = Notice::staticGet('id', $fave->notice_id); // TODO: This will be useful when we provide details in the data table
-                $sa->graphs['trends'][$date_created->format('Y-m-d')]['faves']++;
+                if($fave->user_id == $user_id) {
+                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['faves']++;
+                    $sa->ttl_faves++;
+                }
+                else {
+                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['o_faved']++;
+                    $sa->ttl_o_faved++;
+                }
             }
         }
 
         // People who mentioned you
-        $ttl_mentions = 0;
+        $sa->ttl_mentions = 0;
         $mentions = Memcached_DataObject::listGet('Reply', 'profile_id', array($user_id));
         foreach($mentions[$user_id] as $mention) {
             $date_created->modify($mention->modified);
@@ -128,15 +136,12 @@ class Social_analytics extends Memcached_DataObject
                 $notice = Notice::staticGet('id', $mention->notice_id);
                 $profile = Profile::staticGet('id', $notice->profile_id);
                 $sa->graphs['people_who_mentioned_you'][$profile->nickname]++;
-                $ttl_mentions++;
+                $sa->ttl_mentions++;
             }
         }
 
-
-        // Your notices favored by others
-
         // Hosts you are following
-        $ttl_following = 0;
+        $sa->ttl_following = 0;
         $arr_following = Memcached_DataObject::listGet('Subscription', 'subscriber', array($user_id));
         foreach($arr_following[$user_id] as $following) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
@@ -151,19 +156,16 @@ class Social_analytics extends Memcached_DataObject
                 $profile = Profile::staticGet('id', $following->subscribed);
 
                 $sa->graphs['hosts_you_are_following'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $sa->ttl_following++;
             }
             elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
-                $ttl_following++;
-
                 $profile = Profile::staticGet('id', $following->subscribed);
                 $sa->graphs['hosts_you_are_following'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
         }
 
-        $sa->ttl_following = $ttl_following;
-
         // Hosts who follow you
-        $ttl_followers = 0;
+        $sa->ttl_followers = 0;
         $followers = Memcached_DataObject::listGet('Subscription', 'subscribed', array($user_id));
         foreach($followers[$user_id] as $follower) {
             // This is in my DB, but doesn't show up in my 'Following' total (???)
@@ -178,24 +180,21 @@ class Social_analytics extends Memcached_DataObject
                 $profile = Profile::staticGet('id', $follower->subscriber);
 
                 $sa->graphs['hosts_who_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $sa->ttl_followers++;
             }
             elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
-                $ttl_followers++;
-
                 $profile = Profile::staticGet('id', $follower->subscriber);
                 $sa->graphs['hosts_who_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
             }
         }
 
-        $sa->ttl_followers = $ttl_followers;
-
-        foreach($sa->graphs['trends'] as &$day) {
+/*        foreach($sa->graphs['trends'] as &$day) {
             $day['followers'] += $ttl_followers;
             $ttl_followers = $day['followers'];
 
             $day['following'] += $ttl_following;
             $ttl_following = $day['following'];
-        }
+} */
 
         return $sa;
     }
