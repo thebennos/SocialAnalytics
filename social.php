@@ -285,7 +285,7 @@ class SocialAction extends Action
         }
 
         // If we have map data
-        if(count($this->sa->map['following'])) {
+        if(count($this->sa->map)) {
             // Print Map title
             $this->element('h3', null, 'Location of new subscriptions');
             $this->element('p', null, 'Blue: you started following, red: started to follow you');
