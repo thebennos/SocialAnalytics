@@ -57,23 +57,26 @@ class Social_analytics extends Memcached_DataObject
     /**
      * TODO: Document 
      */
-    static function init($user_id, $target_month=NULL)
+    static function init($user_id, $target_month=NULL, $edate=NULL)
     {
         $sa = new Social_analytics();
+
         $sa->user_id = $user_id;
         $sa->month = (!$target_month) ? new DateTime('first day of this month') : new DateTime($target_month . '-01');
 
         $sa->ttl_notices = 0;
+        $sa->ttl_replies = 0;
 
         // The list of graphs we'll be generating
         $sa->graphs = array(
             'trends' => array(),
-            'hosts_you_are_following' => array(),
-            'hosts_who_follow_you' => array(),
+            'hosts_you_started_to_follow' => array(),
+            'hosts_who_started_to_follow_you' => array(),
             'clients' => array(),
             'people_you_replied_to' => array(),
             'people_who_mentioned_you' => array()
         );
+        $sa->map = array();
 
         // Initialize 'trends' table. We do this now since we know which rows we need in advance (all non-future days of month)
         $i_date = clone($sa->month);
@@ -102,6 +105,7 @@ class Social_analytics extends Memcached_DataObject
                     $reply_to = Notice::staticGet('id', $notice->reply_to);
                     $repliee = Profile::staticGet('id', $reply_to->profile_id);
                     $sa->graphs['people_you_replied_to'][$repliee->nickname]++;
+                    $sa->ttl_replies++;
                 }
 
                 $sa->graphs['trends'][$date_created->format('Y-m-d')]['notices']++;
@@ -140,6 +144,7 @@ class Social_analytics extends Memcached_DataObject
             }
         }
 
+
         // Hosts you are following
         $sa->ttl_following = 0;
         $arr_following = Memcached_DataObject::listGet('Subscription', 'subscriber', array($user_id));
@@ -155,13 +160,19 @@ class Social_analytics extends Memcached_DataObject
                 $sa->graphs['trends'][$date_created->format('Y-m-d')]['following']++;
                 $profile = Profile::staticGet('id', $following->subscribed);
 
-                $sa->graphs['hosts_you_are_following'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                if(!is_null($profile->lat) && !is_null($profile->lon)) {
+                    $sa->map['following'][$profile->nickname] = array('lat' => $profile->lat, 'lon' => $profile->lon);
+                }
+
+                $sa->graphs['hosts_you_started_to_follow'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
                 $sa->ttl_following++;
             }
-            elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
+            // TODO: Commented because it isn't 'monthly'. Should go with 'all times' graphs. Blocked by #1
+            /* elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
                 $profile = Profile::staticGet('id', $following->subscribed);
-                $sa->graphs['hosts_you_are_following'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
-            }
+                $sa->graphs['hosts_you_started_to_follow'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $sa->ttl_following++;
+            } */
         }
 
         // Hosts who follow you
@@ -179,15 +190,22 @@ class Social_analytics extends Memcached_DataObject
                 $sa->graphs['trends'][$date_created->format('Y-m-d')]['followers']++;
                 $profile = Profile::staticGet('id', $follower->subscriber);
 
-                $sa->graphs['hosts_who_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                if(!is_null($profile->lat) && !is_null($profile->lon)) {
+                    $sa->map['followers'][$profile->nickname] = array('lat' => $profile->lat, 'lon' => $profile->lon);
+                }
+
+                $sa->graphs['hosts_who_started_to_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
                 $sa->ttl_followers++;
             }
-            elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
+            // TODO: Commented because it isn't 'monthly'. Should go with 'all times' graphs. Blocked by #1
+            /* elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
                 $profile = Profile::staticGet('id', $follower->subscriber);
-                $sa->graphs['hosts_who_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
-            }
+                $sa->graphs['hosts_who_started_to_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $sa->ttl_followers++;
+            } */
         }
 
+// TODO: Commented because it isn't 'monthly'. Should go with 'all times' graphs. Blocked by #1        
 /*        foreach($sa->graphs['trends'] as &$day) {
             $day['followers'] += $ttl_followers;
             $ttl_followers = $day['followers'];

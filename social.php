@@ -66,7 +66,15 @@ class SocialAction extends Action
 
         $this->user = common_current_user();
 
-        if (!empty($this->user)) {
+        // Custom date range
+        if($_REQUEST['sdate']) {
+            if(is_null($_REQUEST['edate'])) { // If only a start date was provided, make 'end date' today's date.
+                $edate = new DateTime();
+                $edate = $edate->format('Y-m-d');
+            }
+            $this->sa = Social_analytics::init($this->user->id, $_REQUEST['sdate'], $edate);
+        }
+        else { // Monthly view
             $this->sa = Social_analytics::init($this->user->id, $_REQUEST['month']);
         }
 
@@ -108,11 +116,30 @@ class SocialAction extends Action
         $month = clone($current_month);
     	$url = common_local_url('social');
 
+        // Prev month
         $this->elementStart('ul', array('class' => 'social_nav'));
         $this->elementStart('li', array('class' => 'prev'));
         $this->element('a', array('href' => $url . '?month=' . $month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
         $this->elementEnd('li');
 
+        // Custom date range link
+/*        $this->elementStart('li', array('class' => 'cust'));
+        $this->element('a', array('href' => '#'), 'Custom date range');
+        
+        // Custom date range datepickers
+        $this->elementStart('form', array('class' => 'social_date_picker', 'method' => 'get', 'action' => $url));
+        $this->elementStart('fieldset');
+        $this->element('label', array('for' => 'social_start_date'), 'Start date:');
+        $this->element('input', array('id' => 'social_start_date', 'name' => 'sdate'));
+        $this->element('br');
+        $this->element('label', array('for' => 'social_end_date'), 'End date:');
+        $this->element('input', array('id' => 'social_end_date', 'name' => 'edate'));
+        $this->element('input', array('type' => 'submit', 'id' => 'social_submit_date'));
+        $this->elementEnd('fieldset');
+        $this->elementEnd('form');        
+        
+        $this->elementEnd('li'); */
+        
         // Don't generate a 'next' link if the next month is in the future
         $today = new DateTime();
         if($today >= $month->modify('+2 month')) {
@@ -124,6 +151,10 @@ class SocialAction extends Action
     }
 
     function printGraph($name, $rows) {
+        if(count($rows) <= 1) { // Skip empty tables
+            return;
+        }
+
         // Title
         $this->element('h3', null, ucfirst(str_replace('_', ' ', _m($name))));
 
@@ -239,9 +270,13 @@ class SocialAction extends Action
         $this->elementEnd('li');
 
         $this->elementStart('li');
-        $this->text('were mentioned ' . $this->sa->ttl_mentions . ' times');
+        $this->text('were mentioned ' . $this->sa->ttl_mentions . ' times, by ' . count($this->sa->graphs['people_who_mentioned_you']) . ' different people');
         $this->elementEnd('li');
 
+        $this->elementStart('li');
+        $this->text('replied to ' . count($this->sa->graphs['people_you_replied_to']) . ' people, for a total of ' . $this->sa->ttl_replies . ' replies');
+        $this->elementEnd('li');        
+        
         $this->elementEnd('ul');
 
         // Graphs
@@ -249,8 +284,65 @@ class SocialAction extends Action
             $this->printGraph($title, $graph);
         }
 
+        // If we have map data
+        if(count($this->sa->map['following'])) {
+            // Print Map title
+            $this->element('h3', null, 'Location of new subscriptions');
+            $this->element('p', null, 'Blue: you started following, red: started to follow you');
+
+            // Print map
+            $this->element('div', array('id' => 'mapdiv'));
+            $this->script('http://www.openlayers.org/api/OpenLayers.js');
+            $this->inlineScript('
+                map = new OpenLayers.Map("mapdiv");
+                map.addLayer(new OpenLayers.Layer.OSM());
+                var zoom=2;
+
+                var markers = new OpenLayers.Layer.Markers( "Markers" );
+                map.addLayer(markers);
+
+                var coords = ' . $this->getCoords('following') . '
+                for(var i=0; i<coords.length; i++) {
+                    var lonLat = new OpenLayers.LonLat( coords[i].lon, coords[i].lat )
+                          .transform(
+                            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                            map.getProjectionObject() // to Spherical Mercator Projection
+                          );
+                    markers.addMarker(new OpenLayers.Marker(lonLat));
+                 }
+
+                var size = new OpenLayers.Size(21,25);
+                var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+                var icon = new OpenLayers.Icon("http://www.openlayers.org/dev/img/marker-blue.png", size, offset);
+
+                var coords = ' . $this->getCoords('followers') . '
+                for(var i=0; i<coords.length; i++) {
+                    var lonLat = new OpenLayers.LonLat( coords[i].lon, coords[i].lat )
+                          .transform(
+                            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                            map.getProjectionObject() // to Spherical Mercator Projection
+                          );
+                    markers.addMarker(new OpenLayers.Marker(lonLat, icon.clone()));
+                } 
+             
+                map.setCenter (lonLat, zoom); 
+            ');
+        }
+
         // Navigation
         $this->printNavigation($this->sa->month);
+    }
+
+    function getCoords($name) {
+        $markers = '[';
+
+        // FIXME: Just store this in JS notation in $this->sa->map['following']['nickname'] to being with
+        foreach($this->sa->map[$name] as $nickname => $coords) {
+            $markers .= '{ lon: "' . $coords['lon'] . '", lat: "'  . $coords['lat'] . '"},';
+        }
+
+        $markers = rtrim($markers, ',');
+        return $markers . ']';
     }
 
     /**

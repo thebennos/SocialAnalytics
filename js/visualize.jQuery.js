@@ -485,11 +485,11 @@ $(document).ready(function(){
         $(this).wrapInner($link);
     });
 
-    $('.hosts_you_are_following_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
-        .appendTo('.hosts_you_are_following_graph');
+    $('.hosts_you_started_to_follow_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
+        .appendTo('.hosts_you_started_to_follow_graph');
 
-    $('.hosts_who_follow_you_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
-        .appendTo('.hosts_who_follow_you_graph');
+    $('.hosts_who_started_to_follow_you_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
+        .appendTo('.hosts_who_started_to_follow_you_graph');
     
     $('.clients_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
         .appendTo('.clients_graph');
@@ -512,4 +512,18 @@ $(document).ready(function(){
         $(this).next('table').fadeToggle();
     });
 
+    // Show/hide custom date form
+    $('.social_nav .cust a').click(function(e) {
+        e.preventDefault();
+        e.stopPropagation;
+        $('.social_date_picker').fadeToggle();
+    });
+
+    // Bind datepickers
+    $('#social_start_date, #social_end_date').datepicker({
+        showOn: "button",
+        buttonImage: "/plugins/SocialAnalytics/images/calendar.png",  // FIXME: This won't work on instances installed in a subdir
+        buttonImageOnly: true,
+        maxDate: new Date()
+    });    
 });
