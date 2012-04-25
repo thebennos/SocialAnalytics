@@ -254,6 +254,10 @@ class SocialAction extends Action
         $this->elementEnd('li');
 
         $this->elementStart('li');
+        $this->text('posted ' . $this->sa->ttl_bookmarks . ' bookmarks(s)');
+        $this->elementEnd('li');
+
+        $this->elementStart('li');
         $this->text('followed ' . $this->sa->ttl_following . ' new people');
         $this->elementEnd('li');
 
@@ -288,7 +292,7 @@ class SocialAction extends Action
         if(count($this->sa->map)) {
             // Print Map title
             $this->element('h3', null, 'Location of new subscriptions');
-            $this->element('p', null, 'Blue: you started following, red: started to follow you');
+            $this->element('p', null, 'Red: you started following, blue: started to follow you');
 
             // Print map
             $this->element('div', array('id' => 'mapdiv'));

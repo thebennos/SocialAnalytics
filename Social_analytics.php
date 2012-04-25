@@ -66,6 +66,7 @@ class Social_analytics extends Memcached_DataObject
 
         $sa->ttl_notices = 0;
         $sa->ttl_replies = 0;
+        $sa->ttl_bookmarks = 0;
 
         // The list of graphs we'll be generating
         $sa->graphs = array(
@@ -82,7 +83,7 @@ class Social_analytics extends Memcached_DataObject
         $i_date = clone($sa->month);
         $today = new DateTime();
         while($i_date->format('m') == $sa->month->format('m')) {
-            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => 0, 'following' => 0, 'followers' => 0, 'faves' => 0, 'o_faved' => 0);
+            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => 0, 'following' => 0, 'followers' => 0, 'faves' => 0, 'o_faved' => 0, 'bookmarks' => 0);
 
             // Do not process dates from the future
             if($i_date->format('Y-m-d') == $today->format('Y-m-d')) {
@@ -99,7 +100,7 @@ class Social_analytics extends Memcached_DataObject
             $date_created->modify($notice->created);
 
             if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
-                $sa->graphs['clients'][$notice->source]++;
+                $sa->graphs['clients'][$notice->source]++; // FIXME: Do we want to include bookmarks with notices now that we have a 'bookmarks' trend?
 
                 if($notice->reply_to) {
                     $reply_to = Notice::staticGet('id', $notice->reply_to);
@@ -108,8 +109,13 @@ class Social_analytics extends Memcached_DataObject
                     $sa->ttl_replies++;
                 }
 
+                if($notice->object_type == 'http://activitystrea.ms/schema/1.0/bookmark') { // FIXME: Matching just the type ('bookmark') is probably more future-proof
+                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['bookmarks']++;
+                    $sa->ttl_bookmarks++;
+                }
+
                 $sa->graphs['trends'][$date_created->format('Y-m-d')]['notices']++;
-                $sa->ttl_notices++;
+                $sa->ttl_notices++; // FIXME: Do we want to include bookmarks with notices now that we have a 'bookmarks' trend?
             }
         }
 
