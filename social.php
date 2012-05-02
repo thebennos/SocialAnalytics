@@ -151,7 +151,7 @@ class SocialAction extends Action
     }
 
     function printGraph($name, $rows) {
-        if(count($rows) <= 1) { // Skip empty tables
+        if(count($rows) < 1) { // Skip empty tables
             return;
         }
 
@@ -239,7 +239,7 @@ class SocialAction extends Action
         }
 
         // Month
-        $this->element('h2', null, sprintf(_m('%s, %d'), $this->sa->month->format('F'), $this->sa->month->format(Y)));
+        $this->element('h2', null, sprintf(_m('%s, %d'), $this->sa->month->format('F'), $this->sa->month->format('Y')));
 
         // Navigation
         $this->printNavigation($this->sa->month);

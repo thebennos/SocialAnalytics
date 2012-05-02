@@ -100,7 +100,7 @@ class Social_analytics extends Memcached_DataObject
             $date_created->modify($notice->created);
 
             if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
-                $sa->graphs['clients'][$notice->source]++; // FIXME: Do we want to include bookmarks with notices now that we have a 'bookmarks' trend?
+                $sa->graphs['clients'][$notice->source]++;
 
                 if($notice->reply_to) {
                     $reply_to = Notice::staticGet('id', $notice->reply_to);
