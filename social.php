@@ -216,6 +216,100 @@ class SocialAction extends Action
         $this->elementEnd('table');
     }
 
+    function newPrintGraph($name, $rows) {
+        if(count($rows) < 1) { // Skip empty tables
+            return;
+        } 
+
+        // Title
+        $this->element('h3', null, ucfirst(str_replace('_', ' ', _m($name))));
+
+        // Graph container
+        $this->element('div', array('class' => 'social_graph ' . $name . '_graph'));
+
+        // Toggle link
+        $this->element('a', array('class' => 'toggleTable', 'href' => '#'), _m('Show "' . str_replace('_', ' ', $name) . '" table'));
+
+        // Table
+        $this->elementStart('table', array('class' => 'social_table ' . $name . '_table'));
+        $this->elementStart('thead');
+        $this->elementStart('tr');
+        $this->element('td');
+
+        // FIXME: This is hackish
+        if($name != 'trends') { // Ignore the 'trends' table since it's ok to have more than 10 rows
+            $nb_rows = count($rows);
+
+            if($nb_rows > 9) { // For other tables, limit the rows to 9 and shove everything else in 'other'
+                arsort($rows, SORT_NUMERIC);
+                $keys = array_keys($rows);
+                for($i=9; $i<$nb_rows; $i++) {
+                    $other += $rows[$keys[$i]]; // Sum of items in 'other'
+                    unset($rows[$keys[$i]]); // Remove original item from array
+                }
+                $rows['other'] = $other; // Add 'other' to array
+            }
+        }
+
+        // Top headers
+        $foo = reset($rows);
+        if(is_array($foo)) {
+            foreach($foo as $bar => $meh) {
+                $this->element('th', null, $bar);
+            }
+        }
+        else {
+            $this->element('th', null, 'nb');
+        }
+        $this->elementEnd('tr');
+        $this->elementEnd('thead');
+        // Data rows
+        $this->elementStart('tbody');
+        foreach($rows as $date => $data) {
+            $this->elementStart('tr');
+            $this->element('th', null, $date);
+            if(is_array($data)) {
+                foreach($data as $type => $cell) {
+                    $this->elementStart('td');
+                    $this->text(count($cell));
+
+                    if(count($cell) !== 0) {
+                        $this->elementStart('ul');
+                        switch($type) {
+                            case 'notices':
+                            case 'bookmarks':
+                            case 'faves':
+                            case 'o_faved':
+                                foreach($cell as $notice) {
+                                    $this->elementStart('li');
+                                    $this->raw($notice->rendered);
+                                    $this->elementEnd('li');
+                                }
+                                break;
+                            case 'following':
+                            case 'followers':
+                                foreach($cell as $follower) {
+                                    $this->elementStart('li');
+                                    $this->text($follower->nickname);
+                                    $this->elementEnd('li');
+                                }
+                                break;
+                        }
+                        $this->elementEnd('ul');
+                    }
+
+                    $this->elementEnd('td');
+                }
+            }
+            else {
+                $this->element('td', null, $data);
+            }
+            $this->elementEnd('tr');
+        }
+        $this->elementEnd('tbody');
+        $this->elementEnd('table');
+    }
+
     /**
      * Show content in the content area
      *
@@ -285,7 +379,12 @@ class SocialAction extends Action
 
         // Graphs
         foreach($this->sa->graphs as $title => $graph) {
-            $this->printGraph($title, $graph);
+            if($title !== 'trends') {
+                $this->printGraph($title, $graph);
+            }
+            else {
+                $this->newPrintGraph($title, $graph);
+            }
         }
 
         // If we have map data

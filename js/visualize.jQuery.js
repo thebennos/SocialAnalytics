@@ -64,7 +64,7 @@ $.fn.visualize = function(options, container){
 							dataGroups[i].color = colors[i];
 							if(textColors[i]){ dataGroups[i].textColor = textColors[i]; }
 							self.find('tr:gt(0)').filter(o.rowFilter).each(function(){
-								dataGroups[i].points.push( $(this).find('td').filter(o.colFilter).eq(i).text()*1 );
+								dataGroups[i].points.push( parseFloat($(this).find('td').filter(o.colFilter).eq(i).text())*1 );
 							});
 						};
 					}
@@ -483,6 +483,27 @@ $(document).ready(function(){
 
         // Add link around table headers
         $(this).wrapInner($link);
+    });
+
+    // Wrap <td> numbers in a link that will show <td> details when clicked on.
+    // This currently cannot be done via PHP since visualize.js needs the <td> to start with a number.
+    $('.trends_table td').each(function(){
+        var $ul = $(this).children('ul').remove();
+        var num = $(this).text();
+
+        if(num == '0') {
+            return;
+        }
+
+        $(this).empty();
+        $('<a href="#">' + num + '</a>').click(function(e){
+            e.preventDefault();
+            e.stopPropagation();
+
+            $(this).siblings('ul').fadeToggle();
+        })
+        .appendTo(this);
+        $(this).append($ul);
     });
 
     $('.hosts_you_started_to_follow_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})

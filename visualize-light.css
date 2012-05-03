@@ -5,6 +5,23 @@ body .visualize {margin: 0 30px 10px 30px; padding: 0;}
 .social_table th, .social_table td {padding: 3px;}
 .social_table td {text-align: right;}
 
+/* td details */
+.social_table td ul {
+    display: none;
+    list-style-type: none;
+    text-align: left;
+}
+
+.social_table td ul li {
+    background-color: #EEE;
+    margin-bottom: 3px;
+}
+
+.social_table td a {
+    font-weight: bold;
+}
+/* /td details */
+
 /* Date picker form */
 .social_date_picker {display: none; position: absolute; top: 100%; left: 0; text-align: left; border: 1px solid #000; border-radius: 5px; padding: 10px; margin-top: 5px;}
 #social_start_date, #social_end_date {margin-bottom: 5px;}

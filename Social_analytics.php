@@ -83,7 +83,7 @@ class Social_analytics extends Memcached_DataObject
         $i_date = clone($sa->month);
         $today = new DateTime();
         while($i_date->format('m') == $sa->month->format('m')) {
-            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => 0, 'following' => 0, 'followers' => 0, 'faves' => 0, 'o_faved' => 0, 'bookmarks' => 0);
+            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => array(), 'following' => array(), 'followers' => array(), 'faves' => array(), 'o_faved' => array(), 'bookmarks' => array());
 
             // Do not process dates from the future
             if($i_date->format('Y-m-d') == $today->format('Y-m-d')) {
@@ -93,30 +93,33 @@ class Social_analytics extends Memcached_DataObject
         }
 
         // Gather "Notice" information from db and place into appropriate arrays
-        $notices = Memcached_DataObject::listGet('Notice', 'profile_id', array($user_id));
+        // $notices = Memcached_DataObject::listGet('Notice', 'profile_id', array($user_id));
+        $notices = Memcached_DataObject::cachedQuery('Notice', sprintf("SELECT * FROM notice 
+            WHERE profile_id = %d AND created LIKE '%s%%'",
+            $user_id,
+            $sa->month->format('Y-m')));
+
         $date_created = new DateTime();
 
-        foreach($notices[$user_id] as $notice) {
-            $date_created->modify($notice->created);
+        foreach($notices->_items as $notice) {
+            $date_created->modify($notice->created); // String to Date
 
-            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
-                $sa->graphs['clients'][$notice->source]++;
+            $sa->graphs['clients'][$notice->source]++;
 
-                if($notice->reply_to) {
-                    $reply_to = Notice::staticGet('id', $notice->reply_to);
-                    $repliee = Profile::staticGet('id', $reply_to->profile_id);
-                    $sa->graphs['people_you_replied_to'][$repliee->nickname]++;
-                    $sa->ttl_replies++;
-                }
-
-                if($notice->object_type == 'http://activitystrea.ms/schema/1.0/bookmark') { // FIXME: Matching just the type ('bookmark') is probably more future-proof
-                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['bookmarks']++;
-                    $sa->ttl_bookmarks++;
-                }
-
-                $sa->graphs['trends'][$date_created->format('Y-m-d')]['notices']++;
-                $sa->ttl_notices++; // FIXME: Do we want to include bookmarks with notices now that we have a 'bookmarks' trend?
+            if($notice->reply_to) {
+                $reply_to = Notice::staticGet('id', $notice->reply_to);
+                $repliee = Profile::staticGet('id', $reply_to->profile_id);
+                $sa->graphs['people_you_replied_to'][$repliee->nickname]++;
+                $sa->ttl_replies++;
             }
+
+            if($notice->object_type == 'http://activitystrea.ms/schema/1.0/bookmark') { // FIXME: Matching just the type ('bookmark') is probably more future-proof
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['bookmarks'][] = $notice;
+                $sa->ttl_bookmarks++;
+            }
+
+            $sa->graphs['trends'][$date_created->format('Y-m-d')]['notices'][] = $notice;
+            $sa->ttl_notices++; // FIXME: Do we want to include bookmarks with notices now that we have a 'bookmarks' trend?
         }
 
         // Favored notices (both by 'you' and 'others')
@@ -126,12 +129,15 @@ class Social_analytics extends Memcached_DataObject
         foreach($faved->_items as $fave) {
             $date_created->modify($fave->modified);
             if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
+                
+                $notice = Notice::staticGet('id', $fave->notice_id);
+
                 if($fave->user_id == $user_id) {
-                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['faves']++;
+                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['faves'][] = $notice;
                     $sa->ttl_faves++;
                 }
                 else {
-                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['o_faved']++;
+                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['o_faved'][] = $notice;
                     $sa->ttl_o_faved++;
                 }
             }
@@ -163,7 +169,7 @@ class Social_analytics extends Memcached_DataObject
             $date_created->modify($following->created); // Convert string to DateTime
 
             if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
-                $sa->graphs['trends'][$date_created->format('Y-m-d')]['following']++;
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['following'][] = $following;
                 $profile = Profile::staticGet('id', $following->subscribed);
 
                 if(!is_null($profile->lat) && !is_null($profile->lon)) {
@@ -193,8 +199,8 @@ class Social_analytics extends Memcached_DataObject
             $date_created->modify($follower->created); // Convert string to DateTime
 
             if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
-                $sa->graphs['trends'][$date_created->format('Y-m-d')]['followers']++;
                 $profile = Profile::staticGet('id', $follower->subscriber);
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['followers'][] = $profile;
 
                 if(!is_null($profile->lat) && !is_null($profile->lon)) {
                     $sa->map['followers'][$profile->nickname] = array('lat' => $profile->lat, 'lon' => $profile->lon);
