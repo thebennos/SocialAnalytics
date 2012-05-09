@@ -96,8 +96,22 @@ class SocialAction extends Action
     function handle($args)
     {
         parent::handle($args);
-        
-        $this->showPage();
+        if (!common_logged_in()) {
+            // TRANS: Error message displayed when trying to perform an action that requires a logged in user.
+            $this->clientError(_('Not logged in.'));
+            return;
+        } else if (!common_is_real_login()) {
+            // Cookie theft means that automatic logins can't
+            // change important settings or see private info, and
+            // _all_ our settings are important
+            common_set_returnto($this->selfUrl());
+            $user = common_current_user();
+            if (Event::handle('RedirectToLogin', array($this, $user))) {
+                common_redirect(common_local_url('login'), 303);
+            }
+        } else {
+            $this->showPage();
+        }
     }
 
     /**
@@ -264,6 +278,7 @@ class SocialAction extends Action
         $this->elementEnd('tr');
         $this->elementEnd('thead');
         // Data rows
+        // FIXME: Get rid of duplication. The whole thing is pretty awkward. Revise.
         $this->elementStart('tbody');
         foreach($rows as $date => $data) {
             $this->elementStart('tr');
