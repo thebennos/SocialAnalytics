@@ -83,7 +83,14 @@ class Social_analytics extends Memcached_DataObject
         $i_date = clone($sa->month);
         $today = new DateTime();
         while($i_date->format('m') == $sa->month->format('m')) {
-            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array('notices' => array(), 'following' => array(), 'followers' => array(), 'faves' => array(), 'o_faved' => array(), 'bookmarks' => array());
+            $sa->graphs['trends'][$i_date->format('Y-m-d')] = array(
+                'notices' => array(), 
+                'following' => array(), 
+                'followers' => array(), 
+                'faves' => array(), 
+                'o_faved' => array(), 
+                'bookmarks' => array()
+            );
 
             // Do not process dates from the future
             if($i_date->format('Y-m-d') == $today->format('Y-m-d')) {
@@ -104,8 +111,10 @@ class Social_analytics extends Memcached_DataObject
         foreach($notices->_items as $notice) {
             $date_created->modify($notice->created); // String to Date
 
+            // Clients
             $sa->graphs['clients'][$notice->source]++;
 
+            // Replies
             if($notice->reply_to) {
                 $reply_to = Notice::staticGet('id', $notice->reply_to);
                 $repliee = Profile::staticGet('id', $reply_to->profile_id);
@@ -113,11 +122,13 @@ class Social_analytics extends Memcached_DataObject
                 $sa->ttl_replies++;
             }
 
+            // Bookmarks
             if($notice->object_type == 'http://activitystrea.ms/schema/1.0/bookmark') { // FIXME: Matching just the type ('bookmark') is probably more future-proof
                 $sa->graphs['trends'][$date_created->format('Y-m-d')]['bookmarks'][] = $notice;
                 $sa->ttl_bookmarks++;
             }
 
+            // Notices
             $sa->graphs['trends'][$date_created->format('Y-m-d')]['notices'][] = $notice;
             $sa->ttl_notices++; // FIXME: Do we want to include bookmarks with notices now that we have a 'bookmarks' trend?
         }
@@ -132,11 +143,12 @@ class Social_analytics extends Memcached_DataObject
                 
                 $notice = Notice::staticGet('id', $fave->notice_id);
 
+                // User's faves
                 if($fave->user_id == $user_id) {
                     $sa->graphs['trends'][$date_created->format('Y-m-d')]['faves'][] = $notice;
                     $sa->ttl_faves++;
                 }
-                else {
+                else { // User's notices favored by others
                     $sa->graphs['trends'][$date_created->format('Y-m-d')]['o_faved'][] = $notice;
                     $sa->ttl_o_faved++;
                 }
@@ -151,11 +163,17 @@ class Social_analytics extends Memcached_DataObject
             if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
                 $notice = Notice::staticGet('id', $mention->notice_id);
                 $profile = Profile::staticGet('id', $notice->profile_id);
-                $sa->graphs['people_who_mentioned_you'][$profile->nickname]++;
+//                $sa->graphs['people_who_mentioned_you'][$profile->nickname]++;
+
+
+                if(!is_array($sa->graphs['people_who_mentioned_you'][$profile->nickname])) {
+                    $sa->graphs['people_who_mentioned_you'][$profile->nickname] = array();
+                }
+                $sa->graphs['people_who_mentioned_you'][$profile->nickname][] = $notice;
+
                 $sa->ttl_mentions++;
             }
         }
-
 
         // Hosts you are following
         $sa->ttl_following = 0;
@@ -169,8 +187,8 @@ class Social_analytics extends Memcached_DataObject
             $date_created->modify($following->created); // Convert string to DateTime
 
             if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
-                $sa->graphs['trends'][$date_created->format('Y-m-d')]['following'][] = $following;
                 $profile = Profile::staticGet('id', $following->subscribed);
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['following'][] = $profile;
 
                 if(!is_null($profile->lat) && !is_null($profile->lon)) {
                     $sa->map['following'][$profile->nickname] = array('lat' => $profile->lat, 'lon' => $profile->lon);

@@ -268,26 +268,22 @@ class SocialAction extends Action
         foreach($rows as $date => $data) {
             $this->elementStart('tr');
             $this->element('th', null, $date);
-            if(is_array($data)) {
+            if(is_array(current($data))) {
                 foreach($data as $type => $cell) {
                     $this->elementStart('td');
                     $this->text(count($cell));
 
                     if(count($cell) !== 0) {
                         $this->elementStart('ul');
-                        switch($type) {
-                            case 'notices':
-                            case 'bookmarks':
-                            case 'faves':
-                            case 'o_faved':
+                        switch(get_class(current($cell))) {
+                            case 'Notice':
                                 foreach($cell as $notice) {
                                     $this->elementStart('li');
                                     $this->raw($notice->rendered);
                                     $this->elementEnd('li');
                                 }
                                 break;
-                            case 'following':
-                            case 'followers':
+                            case 'Profile':
                                 foreach($cell as $follower) {
                                     $this->elementStart('li');
                                     $this->text($follower->nickname);
@@ -302,7 +298,30 @@ class SocialAction extends Action
                 }
             }
             else {
-                $this->element('td', null, $data);
+                $this->elementStart('td');
+                $this->text(count($data));
+
+                if(count($data) !== 0) {
+                    $this->elementStart('ul');
+                    switch(get_class(current($data))) {
+                        case 'Notice':
+                            foreach($data as $notice) {
+                                $this->elementStart('li');
+                                $this->raw($notice->rendered);
+                                $this->elementEnd('li');
+                            }
+                            break;
+                        case 'Profile':
+                            foreach($data as $follower) {
+                                $this->elementStart('li');
+                                $this->text($follower->nickname);
+                                $this->elementEnd('li');
+                            }
+                            break;
+                    }
+                    $this->elementEnd('ul');
+                }
+                $this->elementEnd('td');
             }
             $this->elementEnd('tr');
         }
@@ -379,7 +398,7 @@ class SocialAction extends Action
 
         // Graphs
         foreach($this->sa->graphs as $title => $graph) {
-            if($title !== 'trends') {
+            if($title !== 'trends' && $title !== 'people_who_mentioned_you') {
                 $this->printGraph($title, $graph);
             }
             else {
