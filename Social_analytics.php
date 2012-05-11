@@ -121,7 +121,12 @@ class Social_analytics extends Memcached_DataObject
             if($notice->reply_to) {
                 $reply_to = Notice::staticGet('id', $notice->reply_to);
                 $repliee = Profile::staticGet('id', $reply_to->profile_id);
-                $sa->graphs['people_you_replied_to'][$repliee->nickname]++;
+
+                if(!is_array($sa->graphs['people_you_replied_to'][$repliee->nickname])) {
+                    $sa->graphs['people_you_replied_to'][$repliee->nickname] = array('notices' => array());
+                }
+                $sa->graphs['people_you_replied_to'][$repliee->nickname]['notices'][] = $notice;
+
                 $sa->ttl_replies++;
             }
 
