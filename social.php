@@ -30,6 +30,17 @@
 if (!defined('STATUSNET')) {
     exit(1);
 }
+    function sortGraph($a, $b) {
+        $c = reset($a);
+        $d = reset($b);
+
+        if(count($c) == count($d)) {
+            return ;
+        }
+
+        // DESC
+        return ($c > $d) ? -1 : 1;
+    }
 
 /**
  * Plugin to give insights into what's happening in your social network over time.
@@ -164,73 +175,8 @@ class SocialAction extends Action
         $this->elementEnd('ul');
     }
 
+
     function printGraph($name, $rows) {
-        if(count($rows) < 1) { // Skip empty tables
-            return;
-        }
-
-        // Title
-        $this->element('h3', null, ucfirst(str_replace('_', ' ', _m($name))));
-
-        // Graph container
-        $this->element('div', array('class' => 'social_graph ' . $name . '_graph'));
-
-        // Toggle link
-        $this->element('a', array('class' => 'toggleTable', 'href' => '#'), _m('Show "' . str_replace('_', ' ', $name) . '" table'));
-
-        // Table
-        $this->elementStart('table', array('class' => 'social_table ' . $name . '_table'));
-        $this->elementStart('thead');
-        $this->elementStart('tr');
-        $this->element('td');
-
-        // FIXME: This is hackish
-        if($name != 'trends') { // Ignore the 'trends' table since it's ok to have more than 10 rows
-            $nb_rows = count($rows);
-
-            if($nb_rows > 9) { // For other tables, limit the rows to 9 and shove everything else in 'other'
-                arsort($rows, SORT_NUMERIC);
-                $keys = array_keys($rows);
-                for($i=9; $i<$nb_rows; $i++) {
-                    $other += $rows[$keys[$i]]; // Sum of items in 'other'
-                    unset($rows[$keys[$i]]); // Remove original item from array
-                }
-                $rows['other'] = $other; // Add 'other' to array
-            }
-        }
-
-        // Top headers
-        $foo = reset($rows);
-        if(is_array($foo)) {
-            foreach($foo as $bar => $meh) {
-                $this->element('th', null, $bar);
-            }
-        }
-        else {
-            $this->element('th', null, 'nb');
-        }
-        $this->elementEnd('tr');
-        $this->elementEnd('thead');
-        // Data rows
-        $this->elementStart('tbody');
-        foreach($rows as $date => $data) {
-            $this->elementStart('tr');
-            $this->element('th', null, $date);
-            if(is_array($data)) {
-                foreach($data as $cell) {
-                    $this->element('td', null, $cell);
-                }
-            }
-            else {
-                $this->element('td', null, $data);
-            }
-            $this->elementEnd('tr');
-        }
-        $this->elementEnd('tbody');
-        $this->elementEnd('table');
-    }
-
-    function newPrintGraph($name, $rows) {
         if(count($rows) < 1) { // Skip empty tables
             return;
         } 
@@ -255,10 +201,14 @@ class SocialAction extends Action
             $nb_rows = count($rows);
 
             if($nb_rows > 9) { // For other tables, limit the rows to 9 and shove everything else in 'other'
-                arsort($rows, SORT_NUMERIC);
+//                arsort($rows, SORT_NUMERIC);
+                uasort($rows, 'sortGraph');
+
+                $other = array();
                 $keys = array_keys($rows);
                 for($i=9; $i<$nb_rows; $i++) {
-                    $other += count($rows[$keys[$i]]); // Sum of items in 'other'
+                    $key = array_keys($rows[$keys[$i]]);
+                    $other[$key[0]] += count($rows[$keys[$i]][$key[0]]); // Sum of items in 'other'
                     unset($rows[$keys[$i]]); // Remove original item from array
                 }
                 $rows['other'] = $other; // Add 'other' to array
@@ -375,12 +325,7 @@ class SocialAction extends Action
 
         // Graphs
         foreach($this->sa->graphs as $title => $graph) {
-/*            if($title !== 'trends' && $title !== 'people_who_mentioned_you' && $title !== 'hosts_you_started_to_follow' && $title !== 'hosts_who_started_to_follow_you' && $title !== 'clients') {
                 $this->printGraph($title, $graph);
-            }
-else { */
-                $this->newPrintGraph($title, $graph);
-//            }
         }
 
         // If we have map data
