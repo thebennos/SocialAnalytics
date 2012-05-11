@@ -228,7 +228,14 @@ class Social_analytics extends Memcached_DataObject
                     $sa->map['followers'][$profile->nickname] = array('lat' => $profile->lat, 'lon' => $profile->lon);
                 }
 
-                $sa->graphs['hosts_who_started_to_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $hst = parse_url($profile->profileurl, PHP_URL_HOST);
+
+                if(!is_array($sa->graphs['hosts_who_started_to_follow_you'][$hst])) {
+                    $sa->graphs['hosts_who_started_to_follow_you'][$hst] = array('host' => array());
+                }
+
+                $sa->graphs['hosts_who_started_to_follow_you'][$hst]['host'][] = $profile;
+
                 $sa->ttl_followers++;
             }
             // TODO: Commented because it isn't 'monthly'. Should go with 'all times' graphs. Blocked by #1

@@ -279,10 +279,12 @@ class SocialAction extends Action
             $this->elementStart('tr');
             $this->element('th', null, $date);
 
-            foreach($data as $type => $cell) {
+            // Data cells
+            foreach($data as $cell) {
                 $this->elementStart('td');
                 $this->text(count($cell));
 
+                // Detailed information (appears onclick)
                 if(count($cell) !== 0) {
                     $this->elementStart('ul');
                     switch(get_class(current($cell))) {
@@ -373,7 +375,7 @@ class SocialAction extends Action
 
         // Graphs
         foreach($this->sa->graphs as $title => $graph) {
-            if($title !== 'trends' && $title !== 'people_who_mentioned_you' && $title !== 'hosts_you_started_to_follow') {
+            if($title !== 'trends' && $title !== 'people_who_mentioned_you' && $title !== 'hosts_you_started_to_follow' && $title !== 'hosts_who_started_to_follow_you') {
                 $this->printGraph($title, $graph);
             }
             else {
