@@ -487,7 +487,7 @@ $(document).ready(function(){
 
     // Wrap <td> numbers in a link that will show <td> details when clicked on.
     // This currently cannot be done via PHP since visualize.js needs the <td> to start with a number.
-    $('.trends_table td, .people_who_mentioned_you_table td, .hosts_you_started_to_follow_table td, .hosts_who_started_to_follow_you_table td').each(function(){
+    $('.trends_table td, .people_who_mentioned_you_table td, .hosts_you_started_to_follow_table td, .hosts_who_started_to_follow_you_table td, .clients_table td').each(function(){
         var $ul = $(this).children('ul').remove();
         var num = $(this).text();
 

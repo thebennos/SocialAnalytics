@@ -375,7 +375,7 @@ class SocialAction extends Action
 
         // Graphs
         foreach($this->sa->graphs as $title => $graph) {
-            if($title !== 'trends' && $title !== 'people_who_mentioned_you' && $title !== 'hosts_you_started_to_follow' && $title !== 'hosts_who_started_to_follow_you') {
+            if($title !== 'trends' && $title !== 'people_who_mentioned_you' && $title !== 'hosts_you_started_to_follow' && $title !== 'hosts_who_started_to_follow_you' && $title !== 'clients') {
                 $this->printGraph($title, $graph);
             }
             else {

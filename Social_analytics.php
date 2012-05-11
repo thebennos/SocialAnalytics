@@ -112,7 +112,10 @@ class Social_analytics extends Memcached_DataObject
             $date_created->modify($notice->created); // String to Date
 
             // Clients
-            $sa->graphs['clients'][$notice->source]++;
+            if(!is_array($sa->graphs['clients'][$notice->source])) {
+                $sa->graphs['clients'][$notice->source] = array('clients' => array());
+            }
+            $sa->graphs['clients'][$notice->source]['clients'][] = $notice;
 
             // Replies
             if($notice->reply_to) {
