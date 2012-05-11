@@ -163,13 +163,11 @@ class Social_analytics extends Memcached_DataObject
             if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
                 $notice = Notice::staticGet('id', $mention->notice_id);
                 $profile = Profile::staticGet('id', $notice->profile_id);
-//                $sa->graphs['people_who_mentioned_you'][$profile->nickname]++;
-
 
                 if(!is_array($sa->graphs['people_who_mentioned_you'][$profile->nickname])) {
-                    $sa->graphs['people_who_mentioned_you'][$profile->nickname] = array();
+                    $sa->graphs['people_who_mentioned_you'][$profile->nickname] = array('notices' => array());
                 }
-                $sa->graphs['people_who_mentioned_you'][$profile->nickname][] = $notice;
+                $sa->graphs['people_who_mentioned_you'][$profile->nickname]['notices'][] = $notice;
 
                 $sa->ttl_mentions++;
             }
@@ -194,7 +192,13 @@ class Social_analytics extends Memcached_DataObject
                     $sa->map['following'][$profile->nickname] = array('lat' => $profile->lat, 'lon' => $profile->lon);
                 }
 
-                $sa->graphs['hosts_you_started_to_follow'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
+                $hst = parse_url($profile->profileurl, PHP_URL_HOST);
+                
+                if(!is_array($sa->graphs['hosts_you_started_to_follow'][$hst])) {
+                    $sa->graphs['hosts_you_started_to_follow'][$hst] = array('host' => array());
+                }
+                $sa->graphs['hosts_you_started_to_follow'][$hst]['host'][] = $profile;
+
                 $sa->ttl_following++;
             }
             // TODO: Commented because it isn't 'monthly'. Should go with 'all times' graphs. Blocked by #1

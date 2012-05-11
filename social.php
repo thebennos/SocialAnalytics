@@ -258,7 +258,7 @@ class SocialAction extends Action
                 arsort($rows, SORT_NUMERIC);
                 $keys = array_keys($rows);
                 for($i=9; $i<$nb_rows; $i++) {
-                    $other += $rows[$keys[$i]]; // Sum of items in 'other'
+                    $other += count($rows[$keys[$i]]); // Sum of items in 'other'
                     unset($rows[$keys[$i]]); // Remove original item from array
                 }
                 $rows['other'] = $other; // Add 'other' to array
@@ -267,67 +267,34 @@ class SocialAction extends Action
 
         // Top headers
         $foo = reset($rows);
-        if(is_array($foo)) {
-            foreach($foo as $bar => $meh) {
-                $this->element('th', null, $bar);
-            }
-        }
-        else {
-            $this->element('th', null, 'nb');
+        foreach($foo as $bar => $meh) {
+            $this->element('th', null, $bar);
         }
         $this->elementEnd('tr');
         $this->elementEnd('thead');
+
         // Data rows
-        // FIXME: Get rid of duplication. The whole thing is pretty awkward. Revise.
         $this->elementStart('tbody');
         foreach($rows as $date => $data) {
             $this->elementStart('tr');
             $this->element('th', null, $date);
-            if(is_array(current($data))) {
-                foreach($data as $type => $cell) {
-                    $this->elementStart('td');
-                    $this->text(count($cell));
 
-                    if(count($cell) !== 0) {
-                        $this->elementStart('ul');
-                        switch(get_class(current($cell))) {
-                            case 'Notice':
-                                foreach($cell as $notice) {
-                                    $this->elementStart('li');
-                                    $this->raw($notice->rendered);
-                                    $this->elementEnd('li');
-                                }
-                                break;
-                            case 'Profile':
-                                foreach($cell as $follower) {
-                                    $this->elementStart('li');
-                                    $this->text($follower->nickname);
-                                    $this->elementEnd('li');
-                                }
-                                break;
-                        }
-                        $this->elementEnd('ul');
-                    }
-
-                    $this->elementEnd('td');
-                }
-            }
-            else {
+            foreach($data as $type => $cell) {
                 $this->elementStart('td');
-                $this->text(count($data));
+                $this->text(count($cell));
 
-                if(count($data) !== 0) {
+                if(count($cell) !== 0) {
                     $this->elementStart('ul');
-                    switch(get_class(current($data))) {
+                    switch(get_class(current($cell))) {
                         case 'Notice':
-                            foreach($data as $notice) {
+                            foreach($cell as $notice) {
                                 $this->elementStart('li');
                                 $this->raw($notice->rendered);
                                 $this->elementEnd('li');
                             }
                             break;
                         case 'Profile':
-                            foreach($data as $follower) {
+                            foreach($cell as $follower) {
                                 $this->elementStart('li');
                                 $this->text($follower->nickname);
                                 $this->elementEnd('li');
@@ -336,6 +303,7 @@ class SocialAction extends Action
                     }
                     $this->elementEnd('ul');
                 }
+
                 $this->elementEnd('td');
             }
             $this->elementEnd('tr');
@@ -358,14 +326,6 @@ class SocialAction extends Action
      */
     function showContent()
     {
-        // Display "error" message on anonymous views
-        if (empty($this->user)) {
-            $this->element('p', array('class' => 'greeting'),
-                           // TRANS: Message in sample plugin.
-                           _m('You need to be logged in to view this page')); // TODO: Redirect to login page, then return to /social
-            return;
-        }
-
         // Month
         $this->element('h2', null, sprintf(_m('%s, %d'), $this->sa->month->format('F'), $this->sa->month->format('Y')));
 
@@ -413,7 +373,7 @@ class SocialAction extends Action
 
         // Graphs
         foreach($this->sa->graphs as $title => $graph) {
-            if($title !== 'trends' && $title !== 'people_who_mentioned_you') {
+            if($title !== 'trends' && $title !== 'people_who_mentioned_you' && $title !== 'hosts_you_started_to_follow') {
                 $this->printGraph($title, $graph);
             }
             else {
