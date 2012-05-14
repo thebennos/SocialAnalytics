@@ -460,6 +460,16 @@ $.fn.visualize = function(options, container){
 };
 })(jQuery);
 
+function dialogResize() {
+    var ulHeight = $(this).outerHeight();
+    var dialogHeight = $(this).parent().outerHeight();
+    var headerHeight = $(this).siblings('.ui-dialog-titlebar').first().outerHeight();
+
+    if(ulHeight > dialogHeight) {
+        $(this).css({'overflow': 'scroll', 'max-height': dialogHeight - headerHeight + 'px'});
+    }
+}
+
 /* Social Analytics Additions */
 $(document).ready(function(){
     $('.trends_table').visualize({type: 'line', width: 700, height: 300, parseDirection: 'y', colFilter: ':not(.visualize-ignore)', rowFilter: ':not(.visualize-ignore)'})
@@ -485,13 +495,17 @@ $(document).ready(function(){
         $(this).wrapInner($link);
     });
 
+    var viewHeight = $(window).height();
+
     // Wrap <td> numbers in a link that will show <td> details when clicked on.
     // This currently cannot be done via PHP since visualize.js needs the <td> to start with a number.
     $('.trends_table td, .people_who_mentioned_you_table td, .hosts_you_started_to_follow_table td, .hosts_who_started_to_follow_you_table td, .clients_table td, .people_you_replied_to_table td').each(function(){
 
         var caption = $(this).parents('table').children('caption').text();
 
-        var diag = $(this).children('ul').dialog({autoOpen: false, title: caption});
+        var diag = $(this).children('ul').dialog({autoOpen: false, title: caption, open: dialogResize});
+        diag.parent().css('max-height', viewHeight + 'px');
+
         var num = $(this).text();
 
         if(num == '0') {
