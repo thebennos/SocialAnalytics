@@ -488,7 +488,10 @@ $(document).ready(function(){
     // Wrap <td> numbers in a link that will show <td> details when clicked on.
     // This currently cannot be done via PHP since visualize.js needs the <td> to start with a number.
     $('.trends_table td, .people_who_mentioned_you_table td, .hosts_you_started_to_follow_table td, .hosts_who_started_to_follow_you_table td, .clients_table td, .people_you_replied_to_table td').each(function(){
-        var $ul = $(this).children('ul').remove();
+
+        var caption = $(this).parents('table').children('caption').text();
+
+        var diag = $(this).children('ul').dialog({autoOpen: false, title: caption});
         var num = $(this).text();
 
         if(num == '0') {
@@ -500,10 +503,9 @@ $(document).ready(function(){
             e.preventDefault();
             e.stopPropagation();
 
-            $(this).siblings('ul').fadeToggle();
+            diag.dialog('open');
         })
         .appendTo(this);
-        $(this).append($ul);
     });
 
     $('.hosts_you_started_to_follow_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})

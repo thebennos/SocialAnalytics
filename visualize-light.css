@@ -5,16 +5,22 @@ body .visualize {margin: 0 30px 10px 30px; padding: 0;}
 .social_table th, .social_table td {padding: 3px;}
 .social_table td {text-align: right;}
 
+.visualize-info div.visualize-title {display: none;}
+.social_table caption {display: none;}
+
 /* td details */
-.social_table td ul {
-    display: none;
+.ui-dialog ul {
     list-style-type: none;
     text-align: left;
 }
 
-.social_table td ul li {
-    background-color: #EEE;
-    margin-bottom: 3px;
+.ui-dialog ul li {
+    border-bottom: 1px solid #CCC;
+    padding: 3px 0;
+}
+
+.social_table td ul {
+    display: none;
 }
 
 .social_table td a {

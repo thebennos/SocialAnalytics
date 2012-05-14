@@ -192,6 +192,7 @@ class SocialAction extends Action
 
         // Table
         $this->elementStart('table', array('class' => 'social_table ' . $name . '_table'));
+        $this->element('caption', null, ucfirst(str_replace('_', ' ', _m($name))));
         $this->elementStart('thead');
         $this->elementStart('tr');
         $this->element('td');
