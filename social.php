@@ -335,43 +335,10 @@ class SocialAction extends Action
             $this->element('h3', null, 'Location of new subscriptions');
             $this->element('p', null, 'Red: you started following, blue: started to follow you');
 
-            // Print map
+            // Map container
             $this->element('div', array('id' => 'mapdiv'));
-            $this->script('http://www.openlayers.org/api/OpenLayers.js');
-            $this->inlineScript('
-                map = new OpenLayers.Map("mapdiv");
-                map.addLayer(new OpenLayers.Layer.OSM());
-                var zoom=2;
-
-                var markers = new OpenLayers.Layer.Markers( "Markers" );
-                map.addLayer(markers);
-
-                var coords = ' . $this->getCoords('following') . '
-                for(var i=0; i<coords.length; i++) {
-                    var lonLat = new OpenLayers.LonLat( coords[i].lon, coords[i].lat )
-                          .transform(
-                            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-                            map.getProjectionObject() // to Spherical Mercator Projection
-                          );
-                    markers.addMarker(new OpenLayers.Marker(lonLat));
-                 }
-
-                var size = new OpenLayers.Size(21,25);
-                var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-                var icon = new OpenLayers.Icon("http://www.openlayers.org/dev/img/marker-blue.png", size, offset);
-
-                var coords = ' . $this->getCoords('followers') . '
-                for(var i=0; i<coords.length; i++) {
-                    var lonLat = new OpenLayers.LonLat( coords[i].lon, coords[i].lat )
-                          .transform(
-                            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-                            map.getProjectionObject() // to Spherical Mercator Projection
-                          );
-                    markers.addMarker(new OpenLayers.Marker(lonLat, icon.clone()));
-                } 
-             
-                map.setCenter (lonLat, zoom); 
-            ');
+            $this->inlineScript('var sa_following_coords = ' . $this->getCoords('following') . ';
+                var sa_followers_coords = ' . $this->getCoords('followers') . ';');
         }
 
         // Navigation
@@ -383,7 +350,7 @@ class SocialAction extends Action
 
         // FIXME: Just store this in JS notation in $this->sa->map['following']['nickname'] to being with
         foreach($this->sa->map[$name] as $nickname => $coords) {
-            $markers .= '{ lon: "' . $coords['lon'] . '", lat: "'  . $coords['lat'] . '"},';
+            $markers .= '{ lon: "' . $coords['lon'] . '", lat: "'  . $coords['lat'] . '", nickname: "' . $nickname . '"},';
         }
 
         $markers = rtrim($markers, ',');
