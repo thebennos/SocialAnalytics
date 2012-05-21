@@ -30,17 +30,6 @@
 if (!defined('STATUSNET')) {
     exit(1);
 }
-    function sortGraph($a, $b) {
-        $c = reset($a);
-        $d = reset($b);
-
-        if(count($c) == count($d)) {
-            return ;
-        }
-
-        // DESC
-        return ($c > $d) ? -1 : 1;
-    }
 
 /**
  * Plugin to give insights into what's happening in your social network over time.
@@ -55,6 +44,19 @@ class SocialAction extends Action
 {
     var $user = null;
     var $sa   = null;
+
+    // TODO: Document
+    function sortGraph($a, $b) {
+        $c = reset($a);
+        $d = reset($b);
+
+        if(count($c) == count($d)) {
+            return ;
+        }
+
+        // DESC
+        return ($c > $d) ? -1 : 1;
+    }
 
     /**
      * Take arguments for running
@@ -202,8 +204,7 @@ class SocialAction extends Action
             $nb_rows = count($rows);
 
             if($nb_rows > 9) { // For other tables, limit the rows to 9 and shove everything else in 'other'
-//                arsort($rows, SORT_NUMERIC);
-                uasort($rows, 'sortGraph');
+                uasort($rows, array($this, 'sortGraph'));
 
                 $other = array();
                 $keys = array_keys($rows);
@@ -337,6 +338,8 @@ class SocialAction extends Action
 
             // Map container
             $this->element('div', array('id' => 'mapdiv'));
+
+            // JS variables (used by js/map.js)
             $this->inlineScript('var sa_following_coords = ' . $this->getCoords('following') . ';
                 var sa_followers_coords = ' . $this->getCoords('followers') . ';');
         }
