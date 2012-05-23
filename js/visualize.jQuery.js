@@ -499,7 +499,7 @@ $(document).ready(function(){
 
     // Wrap <td> numbers in a link that will show <td> details when clicked on.
     // This currently cannot be done via PHP since visualize.js needs the <td> to start with a number.
-    $('.trends_table td, .people_who_mentioned_you_table td, .hosts_you_started_to_follow_table td, .hosts_who_started_to_follow_you_table td, .clients_table td, .people_you_replied_to_table td').each(function(){
+    $('.trends_table td, .people_who_mentioned_you_table td, .hosts_you_started_to_follow_table td, .hosts_who_started_to_follow_you_table td, .clients_table td, .people_you_replied_to_table td, .people_you_repeated_table td').each(function(){
 
         var caption = $(this).parents('table').children('caption').text();
 
@@ -536,6 +536,9 @@ $(document).ready(function(){
 
     $('.people_who_mentioned_you_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
         .appendTo('.people_who_mentioned_you_graph');
+
+    $('.people_you_repeated_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
+        .appendTo('.people_you_repeated_graph');
 
     $('.toggleTable').click(function(e){
         e.preventDefault();

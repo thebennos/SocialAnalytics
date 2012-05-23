@@ -75,7 +75,9 @@ class Social_analytics extends Memcached_DataObject
             'hosts_who_started_to_follow_you' => array(),
             'clients' => array(),
             'people_you_replied_to' => array(),
-            'people_who_mentioned_you' => array()
+            'people_who_mentioned_you' => array(),
+            'people_you_repeated' => array()/*,
+            'people_who_repeated_you' => array()*/
         );
         $sa->map = array();
 
@@ -89,7 +91,8 @@ class Social_analytics extends Memcached_DataObject
                 'followers' => array(), 
                 'faves' => array(), 
                 'o_faved' => array(), 
-                'bookmarks' => array()
+                'bookmarks' => array(),
+                'repeats' => array()
             );
 
             // Do not process dates from the future
@@ -98,6 +101,21 @@ class Social_analytics extends Memcached_DataObject
             }            
             $i_date->modify('+1 day');
         }
+
+        // All repeats that you haven't made
+        /* $notices = Memcached_DataObject::cachedQuery('Notice', sprintf("SELECT * FROM notice WHERE repeat_of IS NOT NULL AND profile_id != %d AND created LIKE '%s%%'",
+            $user_id,
+            $sa->month->format('Y-m')));
+
+        foreach($notices->_items as $notice) {
+            $repeat = Notice::staticGet('id', $notice->repeat_of);
+            if($repeat->profile_id == $user_id) { // If it's a repeat of "your" notice
+                if(!is_array($sa->graphs['people_who_repeated_you'][$notice->nickname])) {
+                    $sa->graphs['people_who_repeated_you'][$notice->nickname] = array('notices' => array());
+                }
+                $sa->graphs['people_who_repeated_you'][$notice->nickname][] = $repeat;
+            }
+        } */
 
         // Gather "Notice" information from db and place into appropriate arrays
         // $notices = Memcached_DataObject::listGet('Notice', 'profile_id', array($user_id));
@@ -110,6 +128,18 @@ class Social_analytics extends Memcached_DataObject
 
         foreach($notices->_items as $notice) {
             $date_created->modify($notice->created); // String to Date
+
+            // Repeats
+            if($notice->repeat_of) {
+                $repeat = Notice::staticGet('id', $notice->repeat_of);
+                $u_repeat = Profile::staticGet('id', $repeat->profile_id);
+
+                if(!is_array($sa->graphs['people_you_repeated'][$u_repeat->nickname])) {
+                    $sa->graphs['people_you_repeated'][$u_repeat->nickname] = array('notices' => array());
+                }
+                $sa->graphs['people_you_repeated'][$u_repeat->nickname]['notices'][] = $notice;
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['repeats'][] = $notice;
+            }
 
             // Clients
             if(!is_array($sa->graphs['clients'][$notice->source])) {
