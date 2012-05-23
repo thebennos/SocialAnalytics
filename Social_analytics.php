@@ -57,13 +57,19 @@ class Social_analytics extends Memcached_DataObject
     /**
      * TODO: Document 
      */
-    static function init($user_id, $target_month=NULL, $edate=NULL)
+    static function init($user_id, $sdate=NULL, $edate=NULL)
     {
         $sa = new Social_analytics();
 
         $sa->user_id = $user_id;
-        $sa->month = (!$target_month) ? new DateTime('first day of this month') : new DateTime($target_month . '-01');
+        
+        $sa->sdate = (!$sdate) ? new DateTime('first day of this month') : new DateTime($sdate);
+        $sa->edate = (!$edate) ? new DateTime('last day of this month') : new DateTime($edate);
 
+        // TODO: Handle cases where 'new DateTime()' fails (due to bad param)
+        //       Print notice and use default (first/last day of this month        
+        // TODO: Make sure sdate < edate
+        
         $sa->ttl_notices = 0;
         $sa->ttl_replies = 0;
         $sa->ttl_bookmarks = 0;
@@ -81,9 +87,9 @@ class Social_analytics extends Memcached_DataObject
         $sa->map = array();
 
         // Initialize 'trends' table. We do this now since we know which rows we need in advance (all non-future days of month)
-        $i_date = clone($sa->month);
+        $i_date = clone($sa->sdate);
         $today = new DateTime();
-        while($i_date->format('m') == $sa->month->format('m')) {
+        while($i_date <= $sa->edate) {
             $sa->graphs['trends'][$i_date->format('Y-m-d')] = array(
                 'notices' => array(), 
                 'following' => array(), 
@@ -103,9 +109,10 @@ class Social_analytics extends Memcached_DataObject
 
         // Gather "Notice" information from db and place into appropriate arrays
         $notices = Memcached_DataObject::cachedQuery('Notice', sprintf("SELECT * FROM notice 
-            WHERE profile_id = %d AND created LIKE '%s%%'",
+            WHERE profile_id = %d AND created >= '%s' AND created <= '%s'",
             $user_id,
-            $sa->month->format('Y-m')));
+            $sa->sdate->format('Y-m-d'),
+            $sa->edate->format('Y-m-d')));
 
         $date_created = new DateTime();
 
@@ -158,7 +165,10 @@ class Social_analytics extends Memcached_DataObject
         $sa->ttl_faves = 0;
         $sa->ttl_o_faved = 0;
         $faved = Memcached_DataObject::cachedQuery('Fave', sprintf("SELECT * FROM fave 
-            WHERE modified LIKE '%s%%'", $sa->month->format('Y-m')));
+            WHERE modified >= '%s' AND modified <= '%s'", 
+            $sa->sdate->format('Y-m-d'), 
+            $sa->edate->format('Y-m-d')));
+            
         foreach($faved->_items as $fave) {
             $date_created->modify($fave->modified); // String to Date
                 
@@ -180,7 +190,7 @@ class Social_analytics extends Memcached_DataObject
         $mentions = Memcached_DataObject::listGet('Reply', 'profile_id', array($user_id));
         foreach($mentions[$user_id] as $mention) {
             $date_created->modify($mention->modified);
-            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
+            if($date_created >= $sa->sdate && $date_created <= $sa->edate) {
                 $notice = Notice::staticGet('id', $mention->notice_id);
                 $profile = Profile::staticGet('id', $notice->profile_id);
 
@@ -204,7 +214,7 @@ class Social_analytics extends Memcached_DataObject
 
             $date_created->modify($following->created); // Convert string to DateTime
 
-            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
+            if($date_created >= $sa->sdate && $date_created <= $sa->edate) {
                 $profile = Profile::staticGet('id', $following->subscribed);
                 $sa->graphs['trends'][$date_created->format('Y-m-d')]['following'][] = $profile;
 
@@ -234,7 +244,7 @@ class Social_analytics extends Memcached_DataObject
 
             $date_created->modify($follower->created); // Convert string to DateTime
 
-            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
+            if($date_created >= $sa->sdate && $date_created <= $sa->edate) {
                 $profile = Profile::staticGet('id', $follower->subscriber);
                 $sa->graphs['trends'][$date_created->format('Y-m-d')]['followers'][] = $profile;
 

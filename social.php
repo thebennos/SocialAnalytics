@@ -80,16 +80,7 @@ class SocialAction extends Action
         $this->user = common_current_user();
 
         // Custom date range
-        if($_REQUEST['sdate']) {
-            if(is_null($_REQUEST['edate'])) { // If only a start date was provided, make 'end date' today's date.
-                $edate = new DateTime();
-                $edate = $edate->format('Y-m-d');
-            }
-            $this->sa = Social_analytics::init($this->user->id, $_REQUEST['sdate'], $edate);
-        }
-        else { // Monthly view
-            $this->sa = Social_analytics::init($this->user->id, $_REQUEST['month']);
-        }
+        $this->sa = Social_analytics::init($this->user->id, $_REQUEST['sdate'], $_REQUEST['edate']);
 
         return true;
     }
@@ -281,14 +272,14 @@ class SocialAction extends Action
     function showContent()
     {
         // Month
-        $this->element('h2', null, sprintf(_m('%s, %d'), $this->sa->month->format('F'), $this->sa->month->format('Y')));
+        $this->element('h2', null, sprintf(_m('From %s to %s'), $this->sa->sdate->format('Y-m-d'), $this->sa->edate->format('Y-m-d')));
 
         // Navigation
-        $this->printNavigation($this->sa->month);
+        // $this->printNavigation($this->sa->month);
 
         // Summary
         $this->element('h3', null, 'Summary');
-        $this->element('p', array('class' => 'summary'), 'This month, you:');
+        $this->element('p', array('class' => 'summary'), 'During this time, you:');
         $this->elementStart('ul', array('class' => 'summary'));
 
         $this->elementStart('li');
@@ -345,7 +336,7 @@ class SocialAction extends Action
         }
 
         // Navigation
-        $this->printNavigation($this->sa->month);
+        // $this->printNavigation($this->sa->month);
     }
 
     function getCoords($name) {
