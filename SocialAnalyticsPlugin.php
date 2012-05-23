@@ -84,6 +84,7 @@ class SocialAnalyticsPlugin extends Plugin
     {
         $action->cssLink($this->path('visualize-light.css'));
         $action->cssLink($this->path('visualize.css'));
+        $action->cssLink($this->path('css/sa.css'));
         return true;
     }    
 

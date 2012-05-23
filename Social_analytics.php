@@ -60,15 +60,20 @@ class Social_analytics extends Memcached_DataObject
     static function init($user_id, $sdate=NULL, $edate=NULL)
     {
         $sa = new Social_analytics();
-
         $sa->user_id = $user_id;
-        
+
         $sa->sdate = (!$sdate) ? new DateTime('first day of this month') : new DateTime($sdate);
         $sa->edate = (!$edate) ? new DateTime('last day of this month') : new DateTime($edate);
 
         // TODO: Handle cases where 'new DateTime()' fails (due to bad param)
         //       Print notice and use default (first/last day of this month        
-        // TODO: Make sure sdate < edate
+
+        // Make sure edate > sdate
+        if($sa->edate < $sa->sdate) {
+            $tmp = $sa->edate;
+            $sa->edate = $sa->sdate;
+            $sa->sdate = $tmp;
+        }
         
         $sa->ttl_notices = 0;
         $sa->ttl_replies = 0;

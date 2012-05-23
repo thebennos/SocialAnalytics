@@ -1,0 +1,51 @@
+/* SN modification (2-col page) */
+#social #content {width: 758px;}
+#social #content_wrapper {border-right: none;}
+#social #aside_primary {display: none;}
+#social #aside_primary_wrapper {background-color: transparent;}
+#social .input_forms {display: none;}
+#social p.summary {margin: 0;}
+#social ul.summary {margin: 0 0 12px 20px;}
+
+/* Visualize modification */
+.visualize-labels-x {display: none;}
+body .visualize {margin: 0 30px 10px 30px; padding: 0;}
+.visualize-info div.visualize-title {display: none;}
+div.social_graph ul.visualize-key li {float: none;}
+div.trends_graph ul.visualize-key li {float: left;}
+div.trends_graph ul.visualize-key {width: 100%;}
+div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
+
+/* Data tables */
+.social_table caption {display: none;}
+.social_table {width: 100%; display: none;}
+.social_table, .social_table th, .social_table td {border: 1px solid #333;}
+.social_table th, .social_table td {padding: 3px;}
+.social_table td {text-align: right;}
+
+/* td details */
+.ui-dialog ul {list-style-type: none; text-align: left;}
+.ui-dialog ul li {border-bottom: 1px solid #CCC; padding: 3px 0;}
+.social_table td ul {display: none;}
+.social_table td a {font-weight: bold;}
+
+/* Date picker */
+.social_date_picker {display: none; position: absolute; top: 100%; left: 0; text-align: left; border: 1px solid #000; border-radius: 5px; padding: 10px; margin-top: 5px;}
+.social_date_picker label {display: block;}
+#social_start_date, #social_end_date {margin-bottom: 5px;}
+#social_submit_date {margin: auto; display: block;}
+#social .ui-datepicker-trigger {margin-left: 5px;}
+
+/* Date Navitation */
+.social_nav {margin-bottom: 5px; padding: 0; list-style-type: none; height: 22px;}
+.social_nav .prev {float: left; width: 33%;}
+.social_nav .cust {float: left; text-align: center; width: 33%; position: relative;}
+.social_nav .next {float: right; text-align: right; width: 33%;}
+.social_nav a {background-image: url(/theme/base/images/icons/icons-01.gif); background-repeat: no-repeat; padding-top: 9px;}
+.social_nav .next a {background-position: 114% -253px; padding-right: 25px;}
+.social_nav .cust a {background: none;}
+.social_nav .prev a {background-position: 0 -188px; padding-left: 25px;}
+
+/* Map */
+#mapdiv {height: 300px; margin: 0 30px 12px 30px !important; width: 700px;}
+div.olControlAttribution {bottom: 0;}

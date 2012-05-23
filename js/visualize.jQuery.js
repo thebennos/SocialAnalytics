@@ -19,7 +19,7 @@ $.fn.visualize = function(options, container){
 			appendKey: true, //color key is added to chart
 			rowFilter: ' ',
 			colFilter: ' ',
-			colors: ['#be1e2d','#666699','#92d5ea','#ee8310','#8d10ee','#5a3b16','#26a4ed','#f45a90','#e9e744'],
+			colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A'],
 			textColors: [], //corresponds with colors array. null/undefined items will fall back to CSS
 			parseDirection: 'x', //which direction to parse the table data
 			pieMargin: 20, //pie charts only - spacing around pie
@@ -460,23 +460,13 @@ $.fn.visualize = function(options, container){
 };
 })(jQuery);
 
-function dialogResize() {
-    var ulHeight = $(this).outerHeight();
-    var dialogHeight = $(this).parent().outerHeight();
-    var headerHeight = $(this).siblings('.ui-dialog-titlebar').first().outerHeight();
-
-    if(ulHeight > dialogHeight) {
-        $(this).css({'overflow': 'scroll', 'max-height': dialogHeight - headerHeight + 'px'});
-    }
-}
-
 /* Social Analytics Additions */
 $(document).ready(function(){
-    $('.trends_table').visualize({type: 'line', width: 700, height: 300, parseDirection: 'y', colFilter: ':not(.visualize-ignore)', rowFilter: ':not(.visualize-ignore)'})
+    $('#trends_table').visualize({type: 'line', width: 700, height: 300, parseDirection: 'y', colFilter: ':not(.visualize-ignore)', rowFilter: ':not(.visualize-ignore)'})
         .appendTo('.trends_graph');
 
     // For each table header in the first table row
-    $('.trends_table tr:eq(0) th').each(function(i, th) {
+    $('#trends_table tr:eq(0) th').each(function(i, th) {
         // Build the link that will be wrapped around the table header
         $link = $('<a href="#"></a>').click(function(e) {
             // Don't follow link on click
@@ -485,7 +475,7 @@ $(document).ready(function(){
             
             // Add the ignored class to the header and the rest of the colum
             $(th).toggleClass('visualize-ignore');
-            $('.trends_table tr:gt(0) td:nth-child(' + parseInt(i+2) + ')').toggleClass('visualize-ignore');
+            $('#trends_table tr:gt(0) td:nth-child(' + parseInt(i+2) + ')').toggleClass('visualize-ignore');
 
             // Refresh the graph
             $('.visualize').trigger('visualizeRefresh');
@@ -495,34 +485,16 @@ $(document).ready(function(){
         $(this).wrapInner($link);
     });
 
-    var viewHeight = $(window).height();
-
-    // Wrap <td> numbers in a link that will show <td> details when clicked on.
-    // This currently cannot be done via PHP since visualize.js needs the <td> to start with a number.
-    $('.trends_table td, .people_who_mentioned_you_table td, .hosts_you_started_to_follow_table td, .hosts_who_started_to_follow_you_table td, .clients_table td, .people_you_replied_to_table td, .people_you_repeated_table td').each(function(){
-
-        var caption = $(this).parents('table').children('caption').text();
-
-        var diag = $(this).children('ul').dialog({autoOpen: false, title: caption, open: dialogResize});
-        diag.parent().css('max-height', viewHeight + 'px');
-
-        var num = $(this).text();
-
-        if(num == '0') {
-            return;
-        }
-
-        $(this).empty();
-        $('<a href="#">' + num + '</a>').click(function(e){
-            e.preventDefault();
-            e.stopPropagation();
-
-            diag.dialog('open');
-        })
-        .appendTo(this);
+    $('table.social_pie').each(function(){
+        var id = $(this).attr('id'); // Extract container class based on table id
+        id = id.substring(0, id.lastIndexOf('_')) + '_graph';
+        
+        $(this).visualize({type: 'pie', width: 700, height: 300})
+            .appendTo('.' + id);
     });
-
-    $('.hosts_you_started_to_follow_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
+    
+    // TODO: target the following tables with .social-pie instead of listing them all
+    /* $('.hosts_you_started_to_follow_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
         .appendTo('.hosts_you_started_to_follow_graph');
 
     $('.hosts_who_started_to_follow_you_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
@@ -538,32 +510,5 @@ $(document).ready(function(){
         .appendTo('.people_who_mentioned_you_graph');
 
     $('.people_you_repeated_table').visualize({type: 'pie', width: 700, height: 300, colors: ['#00A0B0','#6A4A3C','#CC333F','#EB6841','#EDC951','#CFF09E','#79BD9A','#0B486B','#000000','#40434A','red','blue','green']})
-        .appendTo('.people_you_repeated_graph');
-
-    $('.toggleTable').click(function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Change 'Show' to 'Hide' or vice-versa in 'Show [table name] table' link
-        var txt = $(this).text();
-        $(this).text( txt.match(/^Show/) ? txt.replace(/^Show/, 'Hide') : txt.replace(/^Hide/, 'Show') );
-
-        // Toggle data table visibility
-        $(this).next('table').fadeToggle();
-    });
-
-    // Show/hide custom date form
-    $('.social_nav .cust a').click(function(e) {
-        e.preventDefault();
-        e.stopPropagation;
-        $('.social_date_picker').fadeToggle();
-    });
-
-    // Bind datepickers
-    $('#social_start_date, #social_end_date').datepicker({
-        showOn: "button",
-        buttonImage: "/plugins/SocialAnalytics/images/calendar.png",  // FIXME: This won't work on instances installed in a subdir
-        buttonImageOnly: true,
-        maxDate: new Date()
-    });    
+        .appendTo('.people_you_repeated_graph'); */
 });

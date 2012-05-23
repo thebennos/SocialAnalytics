@@ -130,18 +130,21 @@ class SocialAction extends Action
         return _m('Social Analytics');
     }
 
-    function printNavigation($current_month) {
-        $month = clone($current_month);
+    function printNavigation($sdate, $edate) {
+        $interval = $sdate->diff($edate);
     	$url = common_local_url('social');
 
-        // Prev month
+        // Prev period
         $this->elementStart('ul', array('class' => 'social_nav'));
         $this->elementStart('li', array('class' => 'prev'));
-        $this->element('a', array('href' => $url . '?month=' . $month->modify('-1 month')->format('Y-m')), _m('Previous Month'));
+        $this->element('a', array('href' => $url . '?sdate=' . $sdate->sub($interval)->format('Y-m-d') . '&edate=' . $edate->sub($interval)->format('Y-m-d')), _m('Previous Period'));
         $this->elementEnd('li');
 
+        $sdate->add($interval);
+        $edate->add($interval);
+        
         // Custom date range link
-/*        $this->elementStart('li', array('class' => 'cust'));
+        $this->elementStart('li', array('class' => 'cust'));
         $this->element('a', array('href' => '#'), 'Custom date range');
         
         // Custom date range datepickers
@@ -156,15 +159,12 @@ class SocialAction extends Action
         $this->elementEnd('fieldset');
         $this->elementEnd('form');        
         
-        $this->elementEnd('li'); */
+        $this->elementEnd('li');
         
-        // Don't generate a 'next' link if the next month is in the future
-        $today = new DateTime();
-        if($today >= $month->modify('+2 month')) {
-            $this->elementStart('li', array('class' => 'next'));
-            $this->element('a', array('href' => $url . '?month=' . $month->format('Y-m')), _m('Next Month'));
-            $this->elementEnd('li');
-        }
+        // Next period
+        $this->elementStart('li', array('class' => 'next'));
+        $this->element('a', array('href' => $url . '?sdate=' . $sdate->add($interval)->format('Y-m-d')  . '&edate=' . $edate->add($interval)->format('Y-m-d')) , _m('Next Period'));
+        $this->elementEnd('li');
         $this->elementEnd('ul');
     }
 
@@ -183,8 +183,12 @@ class SocialAction extends Action
         // Toggle link
         $this->element('a', array('class' => 'toggleTable', 'href' => '#'), _m('Show "' . str_replace('_', ' ', $name) . '" table'));
 
+        // Type of graph
+        $type = 'social_pie';
+        if($name == 'trends') { $type = 'social_line'; }
+        
         // Table
-        $this->elementStart('table', array('class' => 'social_table ' . $name . '_table'));
+        $this->elementStart('table', array('class' => 'social_table ' . $type, 'id' => $name . '_table'));
         $this->element('caption', null, ucfirst(str_replace('_', ' ', _m($name))));
         $this->elementStart('thead');
         $this->elementStart('tr');
@@ -275,7 +279,7 @@ class SocialAction extends Action
         $this->element('h2', null, sprintf(_m('From %s to %s'), $this->sa->sdate->format('Y-m-d'), $this->sa->edate->format('Y-m-d')));
 
         // Navigation
-        // $this->printNavigation($this->sa->month);
+        $this->printNavigation($this->sa->sdate, $this->sa->edate);
 
         // Summary
         $this->element('h3', null, 'Summary');
@@ -336,7 +340,7 @@ class SocialAction extends Action
         }
 
         // Navigation
-        // $this->printNavigation($this->sa->month);
+        $this->printNavigation($this->sa->sdate, $this->sa->edate);
     }
 
     function getCoords($name) {

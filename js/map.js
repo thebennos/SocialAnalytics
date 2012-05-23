@@ -3,6 +3,7 @@ var SA = {
     bounds: new OpenLayers.Bounds(),
     lyrMarkers: new OpenLayers.Layer.Markers("Markers"),
     currentPopup: null,
+    viewHeight: $(window).height(), // Nothing to do with maps
 
     init: function() {
         this.map.addLayer(new OpenLayers.Layer.OSM());
@@ -14,6 +15,59 @@ var SA = {
 
         center = this.bounds.getCenterLonLat();
         this.map.setCenter(center, this.map.getZoomForExtent(this.bounds) - 1);
+        
+        /* Common JS below. Nothing to do with the map */
+        // Show/hide custom date form
+        $('.social_nav .cust a').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation;
+            $('.social_date_picker').fadeToggle();
+        });
+        
+        // Bind datepickers
+        $('#social_start_date, #social_end_date').datepicker({
+            showOn: "button",
+            buttonImage: "/plugins/SocialAnalytics/images/calendar.png",  // FIXME: This won't work on instances installed in a subdir
+            buttonImageOnly: true,
+            dateFormat: 'yy-mm-dd',
+            maxDate: new Date()
+        });
+
+        // Wrap <td> numbers in a link that will show <td> details when clicked on.
+        $('.social_table td').each(function(){
+            var caption = $(this).parents('table').children('caption').text();
+
+            var diag = $(this).children('ul').dialog({autoOpen: false, title: caption, open: SA.dialogResize});
+            diag.parent().css('max-height', SA.viewHeight + 'px');
+
+            var num = $(this).text();
+
+            if(num == '0') {
+                return;
+            }
+
+            $(this).empty();
+            $('<a href="#">' + num + '</a>').click(function(e){
+                e.preventDefault();
+                e.stopPropagation();
+
+                diag.dialog('open');
+            })
+            .appendTo(this);
+        });
+
+        // Show/hide data tables
+        $('.toggleTable').click(function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Change 'Show' to 'Hide' or vice-versa in 'Show [table name] table' link
+            var txt = $(this).text();
+            $(this).text( txt.match(/^Show/) ? txt.replace(/^Show/, 'Hide') : txt.replace(/^Hide/, 'Show') );
+
+            // Toggle data table visibility
+            $(this).next('table').fadeToggle();
+        });        
     },
 
     addMarkers: function(arr, icon) {
@@ -71,8 +125,18 @@ var SA = {
         }
         SA.currentPopup = this.popup;
         OpenLayers.Event.stop(evt);
-    }
+    },
 
+    // Nothing to do with maps
+    dialogResize: function() {
+        var ulHeight = $(this).outerHeight();
+        var dialogHeight = $(this).parent().outerHeight();
+        var headerHeight = $(this).siblings('.ui-dialog-titlebar').first().outerHeight();
+
+        if(ulHeight > dialogHeight) {
+            $(this).css({'overflow': 'scroll', 'max-height': dialogHeight - headerHeight + 'px'});
+        }
+    }
 }
 
 SA.init();
