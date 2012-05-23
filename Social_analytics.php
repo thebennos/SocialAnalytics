@@ -76,8 +76,7 @@ class Social_analytics extends Memcached_DataObject
             'clients' => array(),
             'people_you_replied_to' => array(),
             'people_who_mentioned_you' => array(),
-            'people_you_repeated' => array()/*,
-            'people_who_repeated_you' => array()*/
+            'people_you_repeated' => array()
         );
         $sa->map = array();
 
@@ -102,23 +101,7 @@ class Social_analytics extends Memcached_DataObject
             $i_date->modify('+1 day');
         }
 
-        // All repeats that you haven't made
-        /* $notices = Memcached_DataObject::cachedQuery('Notice', sprintf("SELECT * FROM notice WHERE repeat_of IS NOT NULL AND profile_id != %d AND created LIKE '%s%%'",
-            $user_id,
-            $sa->month->format('Y-m')));
-
-        foreach($notices->_items as $notice) {
-            $repeat = Notice::staticGet('id', $notice->repeat_of);
-            if($repeat->profile_id == $user_id) { // If it's a repeat of "your" notice
-                if(!is_array($sa->graphs['people_who_repeated_you'][$notice->nickname])) {
-                    $sa->graphs['people_who_repeated_you'][$notice->nickname] = array('notices' => array());
-                }
-                $sa->graphs['people_who_repeated_you'][$notice->nickname][] = $repeat;
-            }
-        } */
-
         // Gather "Notice" information from db and place into appropriate arrays
-        // $notices = Memcached_DataObject::listGet('Notice', 'profile_id', array($user_id));
         $notices = Memcached_DataObject::cachedQuery('Notice', sprintf("SELECT * FROM notice 
             WHERE profile_id = %d AND created LIKE '%s%%'",
             $user_id,
@@ -174,22 +157,21 @@ class Social_analytics extends Memcached_DataObject
         // Favored notices (both by 'you' and 'others')
         $sa->ttl_faves = 0;
         $sa->ttl_o_faved = 0;
-        $faved = Memcached_DataObject::cachedQuery('Fave', 'SELECT * FROM fave');
+        $faved = Memcached_DataObject::cachedQuery('Fave', sprintf("SELECT * FROM fave 
+            WHERE modified LIKE '%s%%'", $sa->month->format('Y-m')));
         foreach($faved->_items as $fave) {
-            $date_created->modify($fave->modified);
-            if($date_created->format('Y-m') == $sa->month->format('Y-m')) {
+            $date_created->modify($fave->modified); // String to Date
                 
-                $notice = Notice::staticGet('id', $fave->notice_id);
+            $notice = Notice::staticGet('id', $fave->notice_id);
 
-                // User's faves
-                if($fave->user_id == $user_id) {
-                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['faves'][] = $notice;
-                    $sa->ttl_faves++;
-                }
-                else { // User's notices favored by others
-                    $sa->graphs['trends'][$date_created->format('Y-m-d')]['o_faved'][] = $notice;
-                    $sa->ttl_o_faved++;
-                }
+            // User's faves
+            if($fave->user_id == $user_id) {
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['faves'][] = $notice;
+                $sa->ttl_faves++;
+            }
+            else { // User's notices favored by others
+                $sa->graphs['trends'][$date_created->format('Y-m-d')]['o_faved'][] = $notice;
+                $sa->ttl_o_faved++;
             }
         }
 
@@ -239,12 +221,6 @@ class Social_analytics extends Memcached_DataObject
 
                 $sa->ttl_following++;
             }
-            // TODO: Commented because it isn't 'monthly'. Should go with 'all times' graphs. Blocked by #1
-            /* elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
-                $profile = Profile::staticGet('id', $following->subscribed);
-                $sa->graphs['hosts_you_started_to_follow'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
-                $sa->ttl_following++;
-            } */
         }
 
         // Hosts who follow you
@@ -276,22 +252,7 @@ class Social_analytics extends Memcached_DataObject
 
                 $sa->ttl_followers++;
             }
-            // TODO: Commented because it isn't 'monthly'. Should go with 'all times' graphs. Blocked by #1
-            /* elseif($date_created->format('Y-m') < $sa->month->format('Y-m')) {
-                $profile = Profile::staticGet('id', $follower->subscriber);
-                $sa->graphs['hosts_who_started_to_follow_you'][parse_url($profile->profileurl, PHP_URL_HOST)]++;
-                $sa->ttl_followers++;
-            } */
         }
-
-// TODO: Commented because it isn't 'monthly'. Should go with 'all times' graphs. Blocked by #1        
-/*        foreach($sa->graphs['trends'] as &$day) {
-            $day['followers'] += $ttl_followers;
-            $ttl_followers = $day['followers'];
-
-            $day['following'] += $ttl_following;
-            $ttl_following = $day['following'];
-} */
 
         return $sa;
     }
