@@ -29,8 +29,11 @@ div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
 .social_table td ul {display: none;}
 .social_table td a {font-weight: bold;}
 
+/* jQueryUI Dialog */
+.ui-datepicker {z-index: 100 !important;} /* Needed to go over <canvas> */
+
 /* Date picker */
-.social_date_picker {display: none; position: absolute; top: 100%; left: 0; text-align: left; border: 1px solid #000; border-radius: 5px; padding: 10px; margin-top: 5px;}
+.social_date_picker {background-color: #FFF; display: none; position: absolute; top: 100%; left: 0; text-align: left; border: 1px solid #000; border-radius: 5px; padding: 10px; margin-top: 5px;}
 .social_date_picker label {display: block;}
 #social_start_date, #social_end_date {margin-bottom: 5px;}
 #social_submit_date {margin: auto; display: block;}

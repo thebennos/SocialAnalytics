@@ -15,7 +15,7 @@ var SA = {
 
         center = this.bounds.getCenterLonLat();
         this.map.setCenter(center, this.map.getZoomForExtent(this.bounds) - 1);
-        
+
         /* Common JS below. Nothing to do with the map */
         // Show/hide custom date form
         $('.social_nav .cust a').click(function(e) {
