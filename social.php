@@ -80,7 +80,7 @@ class SocialAction extends Action
         $this->user = common_current_user();
 
         // Custom date range
-        $this->sa = Social_analytics::init($this->user->id, $_REQUEST['sdate'], $_REQUEST['edate']);
+        $this->sa = Social_analytics::init($this->user->id, $_REQUEST['sdate'], $_REQUEST['edate'], $_REQUEST['period']);
 
         return true;
     }
@@ -130,12 +130,60 @@ class SocialAction extends Action
         return _m('Social Analytics');
     }
 
-    function printNavigation($sdate, $edate) {
+    function printCustomDateForm() {
+        // Custom date range datepickers
+        $this->elementStart('form', array('class' => 'social_date_picker', 'method' => 'get', 'action' => $url));
+        $this->elementStart('fieldset');
+
+        // Radio buttons
+        $this->elementStart('div');
+        $this->element('h3', null, 'Select a Period');
+        $radios = array('day', 'week', 'month' ,'year', 'range');
+        if(!(in_array($this->sa->period, $radios))) {
+            $this->sa->period = 'month';
+        }
+
+        foreach($radios as $radio) {
+            if($this->sa->period == $radio) {
+                $this->element('input', array('id' => 'social_' . $radio, 'type' => 'radio', 'name' => 'period', 'checked' => 'checked', 'value' => $radio));
+            }
+            else {
+                $this->element('input', array('id' => 'social_' . $radio, 'type' => 'radio', 'name' => 'period', 'value' => $radio));
+            }
+            $this->element('label', array('for' => 'social_' . $radio), ucfirst($radio));
+        }
+
+        $this->elementEnd('div');
+
+        // jQueryUI calendar container
+        $this->elementStart('div', array('class' => 'social_sdate_cal'));
+        $this->element('h3', null, 'Select a Date');
+        $this->elementEnd('div');
+
+        $this->element('div', array('class' => 'social_edate_cal'));
+
+        /* Period */
+        $this->elementStart('div', array('class' => 'social_period'));
+        $this->element('h3', null, 'Confirm');
+        // Form input
+        $this->element('label', array('for' => 'social_start_date'), 'Start date:');
+        $this->element('input', array('id' => 'social_start_date', 'name' => 'sdate'));
+        $this->element('br');
+        $this->element('label', array('for' => 'social_end_date'), 'End date:');
+        $this->element('input', array('id' => 'social_end_date', 'name' => 'edate'));
+        $this->element('input', array('type' => 'submit', 'id' => 'social_submit_date'));
+        $this->elementEnd('div');
+        
+        $this->elementEnd('fieldset');
+        $this->elementEnd('form');        
+    }
+
+    function printNavigation($sdate, $edate, $location) {
         $interval = $sdate->diff($edate);
     	$url = common_local_url('social');
 
         // Prev period
-        $this->elementStart('ul', array('class' => 'social_nav'));
+        $this->elementStart('ul', array('class' => "social_nav $location"));
         $this->elementStart('li', array('class' => 'prev'));
         $this->element('a', array('href' => $url . '?sdate=' . $sdate->sub($interval)->format('Y-m-d') . '&edate=' . $edate->sub($interval)->format('Y-m-d')), _m('Previous Period'));
         $this->elementEnd('li');
@@ -147,17 +195,6 @@ class SocialAction extends Action
         $this->elementStart('li', array('class' => 'cust'));
         $this->element('a', array('href' => '#'), 'Custom date range');
         
-        // Custom date range datepickers
-        $this->elementStart('form', array('class' => 'social_date_picker', 'method' => 'get', 'action' => $url));
-        $this->elementStart('fieldset');
-        $this->element('label', array('for' => 'social_start_date'), 'Start date:');
-        $this->element('input', array('id' => 'social_start_date', 'name' => 'sdate'));
-        $this->element('br');
-        $this->element('label', array('for' => 'social_end_date'), 'End date:');
-        $this->element('input', array('id' => 'social_end_date', 'name' => 'edate'));
-        $this->element('input', array('type' => 'submit', 'id' => 'social_submit_date'));
-        $this->elementEnd('fieldset');
-        $this->elementEnd('form');        
         
         $this->elementEnd('li');
         
@@ -279,7 +316,10 @@ class SocialAction extends Action
         $this->element('h2', null, sprintf(_m('From %s to %s'), $this->sa->sdate->format('Y-m-d'), $this->sa->edate->format('Y-m-d')));
 
         // Navigation
-        $this->printNavigation($this->sa->sdate, $this->sa->edate);
+        $this->printNavigation($this->sa->sdate, $this->sa->edate, 'social_nav_top');
+
+        // Custom Date Form
+        $this->printCustomDateForm();
 
         // Summary
         $this->element('h3', null, 'Summary');
@@ -340,7 +380,7 @@ class SocialAction extends Action
         }
 
         // Navigation
-        $this->printNavigation($this->sa->sdate, $this->sa->edate);
+        $this->printNavigation($this->sa->sdate, $this->sa->edate, 'social_nav_bottom');
     }
 
     function getCoords($name) {

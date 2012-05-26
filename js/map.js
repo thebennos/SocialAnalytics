@@ -5,32 +5,97 @@ var SA = {
     currentPopup: null,
     viewHeight: $(window).height(), // Nothing to do with maps
 
+    pad: function(str, max) {
+        return str.length < max ? this.pad("0" + str, max) : str;
+    },
+
+    dateSelected: function(dateText, inst) {
+        var sdate = new Date(dateText);
+        var period = $('.social_date_picker input[type="radio"]').filter(':checked').attr('id');
+
+        switch(period) {
+            case 'social_week':
+                var firstOfWeek = new Date(sdate.setUTCDate(sdate.getUTCDate() - sdate.getUTCDay()));
+                sdate.setUTCDate(sdate.getUTCDate() + 6); // lastOfWeek
+
+                $('#social_start_date').val(firstOfWeek.getUTCFullYear() + '-' + SA.pad((firstOfWeek.getUTCMonth()+1).toString(), 2) + '-' + SA.pad(firstOfWeek.getUTCDate().toString(), 2));
+                $('#social_end_date').val(sdate.getUTCFullYear() + '-' + SA.pad((sdate.getUTCMonth()+1).toString(), 2) + '-' + SA.pad(sdate.getUTCDate().toString(), 2));
+                break;
+            case 'social_month':
+                var firstOfMonth = sdate.getUTCFullYear() + '-' + SA.pad((sdate.getUTCMonth()+1).toString(), 2) + '-01';
+                var lastOfMonth  = new Date(sdate.getUTCFullYear() + '-' + SA.pad((sdate.getUTCMonth()+2).toString(), 2) + '-01');
+                lastOfMonth = new Date(lastOfMonth-1);
+                lastOfMonth = lastOfMonth.getUTCFullYear() + '-' + SA.pad((lastOfMonth.getUTCMonth()+1).toString(), 2) + '-' + SA.pad(lastOfMonth.getUTCDate().toString(), 2);
+
+                $('#social_start_date').val(firstOfMonth);
+                $('#social_end_date').val(lastOfMonth);
+                break;
+            case 'social_year':
+                $('#social_start_date').val(sdate.getUTCFullYear() + '-01-01');
+                $('#social_end_date').val(sdate.getUTCFullYear() + '-12-31');
+                break;
+            case 'social_range':
+                $('#social_start_date').val(dateText);
+                break;
+            default:        // If no period is selected, default to 'day'
+                $('#social_start_date').val(dateText);
+                $('#social_end_date').val(dateText);
+                break;
+        }
+    },
+
     init: function() {
-        this.map.addLayer(new OpenLayers.Layer.OSM());
-        this.map.addLayer(this.lyrMarkers);
+        // FIXME: Ugly fix to figure out if we have map data or not.
+        if(typeof sa_following_coords != 'undefined' && typeof sa_followers_coords != 'undefined') {
+            this.map.addLayer(new OpenLayers.Layer.OSM());
+            this.map.addLayer(this.lyrMarkers);
 
-        // FIXME: sa_follow{ing,ers}_coords is generated with PHP and globally defined in the markup
-        this.addMarkers(sa_following_coords, 'marker.png');
-        this.addMarkers(sa_followers_coords, 'marker-blue.png');
+            // FIXME: sa_follow{ing,ers}_coords is generated with PHP and globally defined in the markup
+            if(typeof sa_following_coords != 'undefined') {
+                this.addMarkers(sa_following_coords, 'marker.png');
+            }
+            if(typeof sa_followers_coords != 'undefined') {
+                this.addMarkers(sa_followers_coords, 'marker-blue.png');
+            }
 
-        center = this.bounds.getCenterLonLat();
-        this.map.setCenter(center, this.map.getZoomForExtent(this.bounds) - 1);
+            center = this.bounds.getCenterLonLat();
+            this.map.setCenter(center, this.map.getZoomForExtent(this.bounds) - 1);
+        }
 
         /* Common JS below. Nothing to do with the map */
         // Show/hide custom date form
         $('.social_nav .cust a').click(function(e) {
             e.preventDefault();
-            e.stopPropagation;
-            $('.social_date_picker').fadeToggle();
+            e.stopPropagation();
+            $('.social_date_picker').appendTo($(this).parent()).fadeToggle();
         });
-        
+
         // Bind datepickers
-        $('#social_start_date, #social_end_date').datepicker({
-            showOn: "button",
-            buttonImage: "/plugins/SocialAnalytics/images/calendar.png",  // FIXME: This won't work on instances installed in a subdir
-            buttonImageOnly: true,
+        $('.social_sdate_cal').datepicker({
             dateFormat: 'yy-mm-dd',
+            onSelect: SA.dateSelected,
+            changeMonth: true,
+            changeYear: true,
             maxDate: new Date()
+        });
+
+        $('.social_edate_cal').datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function(dateText, inst) {
+                $('#social_end_date').val(dateText);
+            },
+            maxDate: new Date()
+        });
+
+        $('.social_date_picker input[type="radio"]').change(function(){
+            if($('#social_range').is(':checked')) {
+                $('.social_edate_cal').fadeIn();
+            }
+            else {
+                $('.social_edate_cal').fadeOut();
+            }
         });
 
         // Wrap <td> numbers in a link that will show <td> details when clicked on.

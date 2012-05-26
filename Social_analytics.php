@@ -57,10 +57,11 @@ class Social_analytics extends Memcached_DataObject
     /**
      * TODO: Document 
      */
-    static function init($user_id, $sdate=NULL, $edate=NULL)
+    static function init($user_id, $sdate=NULL, $edate=NULL, $period=NULL)
     {
         $sa = new Social_analytics();
         $sa->user_id = $user_id;
+        $sa->period  = $period;
 
         $sa->sdate = (!$sdate) ? new DateTime('first day of this month') : new DateTime($sdate);
         $sa->edate = (!$edate) ? new DateTime('last day of this month') : new DateTime($edate);

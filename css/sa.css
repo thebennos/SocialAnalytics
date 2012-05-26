@@ -33,16 +33,26 @@ div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
 .ui-datepicker {z-index: 100 !important;} /* Needed to go over <canvas> */
 
 /* Date picker */
-.social_date_picker {background-color: #FFF; display: none; position: absolute; top: 100%; left: 0; text-align: left; border: 1px solid #000; border-radius: 5px; padding: 10px; margin-top: 5px;}
-.social_date_picker label {display: block;}
+
+.social_date_picker.ui-datepicker table {table-layout: fixed;}
+.social_date_picker .ui-datepicker {width: 200px;}
+.social_date_picker select.ui-datepicker-month {font-size: 11px; width: 48%;}
+.social_date_picker select.ui-datepicker-year {font-size: 11px; width: 50%;}
+
+.social_sdate_cal, .social_edate_cal, .social_period {float: left;}
+.social_edate_cal {display: none; margin-top: 35px;}
+.social_sdate_cal, .social_edate_cal {margin-right: 10px;}
+.social_date_picker {background-color: #FFF; display: none; position: absolute; top: 100%; left: 0; text-align: left; border: 1px solid #000; border-radius: 5px; padding: 10px; margin-top: 5px; z-index: 999;}
+.social_nav_bottom .social_date_picker {bottom: 100%; top: auto;}
+.social_date_picker label[for=social_start_date], .social_date_picker label[for=social_end_date] {display: block;}
 #social_start_date, #social_end_date {margin-bottom: 5px;}
 #social_submit_date {margin: auto; display: block;}
 #social .ui-datepicker-trigger {margin-left: 5px;}
 
 /* Date Navitation */
-.social_nav {margin-bottom: 5px; padding: 0; list-style-type: none; height: 22px;}
+.social_nav {margin-bottom: 5px; padding: 0; list-style-type: none; height: 22px; position: relative;}
 .social_nav .prev {float: left; width: 33%;}
-.social_nav .cust {float: left; text-align: center; width: 33%; position: relative;}
+.social_nav .cust {float: left; text-align: center; width: 33%; /*position: relative;*/}
 .social_nav .next {float: right; text-align: right; width: 33%;}
 .social_nav a {background-image: url(/theme/base/images/icons/icons-01.gif); background-repeat: no-repeat; padding-top: 9px;}
 .social_nav .next a {background-position: 114% -253px; padding-right: 25px;}
