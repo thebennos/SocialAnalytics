@@ -25,14 +25,20 @@ var SA = {
 
         /* Common JS below. Nothing to do with the map */
         // Show/hide custom date form
-        $('.social_nav .cust a').click(function(e) {
+        $('.social_nav_top .cust a').click(function(e) {
             e.preventDefault();
             e.stopPropagation;
-            $('.social_date_picker').fadeToggle();
+            $('.social_date_picker_top').fadeToggle();
+        });
+
+        $('.social_nav_bottom .cust a').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation;
+            $('.social_date_picker_bottom').fadeToggle();
         });
         
         // Bind datepickers
-        $('#social_start_date, #social_end_date').datepicker({
+        $('#social_start_date_top, #social_end_date_top, #social_start_date_bottom, #social_end_date_bottom').datepicker({
             showOn: "button",
             buttonImage: "/plugins/SocialAnalytics/images/calendar.png",  // FIXME: This won't work on instances installed in a subdir
             buttonImageOnly: true,

@@ -130,31 +130,32 @@ class SocialAction extends Action
         return _m('Social Analytics');
     }
 
-    function printNavigation($sdate, $edate) {
+    function printNavigation($sdate, $edate, $location) {
         $url = common_local_url('social');
-        $sdate->modify('first day of last month');
+
+        $_sdate = clone($sdate);
+        $_edate = clone($edate);
+
+        $_sdate->modify('first day of last month');
 
         // Prev period
-        $this->elementStart('ul', array('class' => 'social_nav'));
+        $this->elementStart('ul', array('class' => 'social_nav social_nav_' . $location));
         $this->elementStart('li', array('class' => 'prev'));
-        $this->element('a', array('href' => $url . '?sdate=' . $sdate->format('Y-m-d') . '&edate=' . $sdate->modify('last day of this month')->format('Y-m-d')), 'Previous month');
+        $this->element('a', array('href' => $url . '?sdate=' . $_sdate->format('Y-m-d') . '&edate=' . $_sdate->modify('last day of this month')->format('Y-m-d')), 'Previous month');
         $this->elementEnd('li');
 
-        $sdate->add($interval);
-        $edate->add($interval);
-        
         // Custom date range link
         $this->elementStart('li', array('class' => 'cust'));
         $this->element('a', array('href' => '#'), 'Custom date range');
         
         // Custom date range datepickers
-        $this->elementStart('form', array('class' => 'social_date_picker', 'method' => 'get', 'action' => $url));
+        $this->elementStart('form', array('class' => 'social_date_picker social_date_picker_' . $location, 'method' => 'get', 'action' => $url));
         $this->elementStart('fieldset');
-        $this->element('label', array('for' => 'social_start_date'), 'Start date:');
-        $this->element('input', array('id' => 'social_start_date', 'name' => 'sdate'));
+        $this->element('label', array('for' => 'social_start_date_' . $location), 'Start date:');
+        $this->element('input', array('id' => 'social_start_date_' . $location, 'name' => 'sdate'));
         $this->element('br');
-        $this->element('label', array('for' => 'social_end_date'), 'End date:');
-        $this->element('input', array('id' => 'social_end_date', 'name' => 'edate'));
+        $this->element('label', array('for' => 'social_end_date_' . $location), 'End date:');
+        $this->element('input', array('id' => 'social_end_date_' . $location, 'name' => 'edate'));
         $this->element('input', array('type' => 'submit', 'id' => 'social_submit_date'));
         $this->elementEnd('fieldset');
         $this->elementEnd('form');        
@@ -162,9 +163,9 @@ class SocialAction extends Action
         $this->elementEnd('li');
         
         // Next period
-        $edate->modify('first day of next month');
+        $_edate->modify('first day of next month');
         $this->elementStart('li', array('class' => 'next'));
-        $this->element('a', array('href' => $url . '?sdate=' . $edate->format('Y-m-d') . '&edate=' . $edate->modify('last day of this month')->format('Y-m-d')), 'Next month');
+        $this->element('a', array('href' => $url . '?sdate=' . $_edate->format('Y-m-d') . '&edate=' . $_edate->modify('last day of this month')->format('Y-m-d')), 'Next month');
         $this->elementEnd('li');
         $this->elementEnd('ul');
     }
@@ -280,7 +281,7 @@ class SocialAction extends Action
         $this->element('h2', null, sprintf(_m('From %s to %s'), $this->sa->sdate->format('Y-m-d'), $this->sa->edate->format('Y-m-d')));
 
         // Navigation
-        $this->printNavigation($this->sa->sdate, $this->sa->edate);
+        $this->printNavigation($this->sa->sdate, $this->sa->edate, 'top');
 
         // Summary
         $this->element('h3', null, 'Summary');
@@ -341,7 +342,7 @@ class SocialAction extends Action
         }
 
         // Navigation
-        $this->printNavigation($this->sa->sdate, $this->sa->edate);
+        $this->printNavigation($this->sa->sdate, $this->sa->edate, 'bottom');
     }
 
     function getCoords($name) {
