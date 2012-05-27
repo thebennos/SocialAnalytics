@@ -6,15 +6,22 @@ var SA = {
     viewHeight: $(window).height(), // Nothing to do with maps
 
     init: function() {
-        this.map.addLayer(new OpenLayers.Layer.OSM());
-        this.map.addLayer(this.lyrMarkers);
+        // FIXME: Ugly fix to figure out if we have map data or not.
+        if(typeof sa_following_coords != 'undefined' && typeof sa_followers_coords != 'undefined') {
+            this.map.addLayer(new OpenLayers.Layer.OSM());
+            this.map.addLayer(this.lyrMarkers);
 
-        // FIXME: sa_follow{ing,ers}_coords is generated with PHP and globally defined in the markup
-        this.addMarkers(sa_following_coords, 'marker.png');
-        this.addMarkers(sa_followers_coords, 'marker-blue.png');
+            // FIXME: sa_follow{ing,ers}_coords is generated with PHP and globally defined in the markup
+            if(typeof sa_following_coords != 'undefined') {
+                this.addMarkers(sa_following_coords, 'marker.png');
+            }
+            if(typeof sa_followers_coords != 'undefined') {
+                this.addMarkers(sa_followers_coords, 'marker-blue.png');
+            }
 
-        center = this.bounds.getCenterLonLat();
-        this.map.setCenter(center, this.map.getZoomForExtent(this.bounds) - 1);
+            center = this.bounds.getCenterLonLat();
+            this.map.setCenter(center, this.map.getZoomForExtent(this.bounds) - 1);
+        }
 
         /* Common JS below. Nothing to do with the map */
         // Show/hide custom date form
