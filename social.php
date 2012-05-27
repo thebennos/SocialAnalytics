@@ -136,8 +136,8 @@ class SocialAction extends Action
         $this->elementStart('fieldset');
 
         // Radio buttons
-        $this->elementStart('div');
-        $this->element('h3', null, 'Select a Period');
+        $this->elementStart('div', array('style' => 'float: left; margin-right: 10px;'));
+        $this->element('h3', null, 'Period');
         $radios = array('day', 'week', 'month' ,'year', 'range');
         if(!(in_array($this->sa->period, $radios))) {
             $this->sa->period = 'month';
@@ -151,26 +151,28 @@ class SocialAction extends Action
                 $this->element('input', array('id' => 'social_' . $radio, 'type' => 'radio', 'name' => 'period', 'value' => $radio));
             }
             $this->element('label', array('for' => 'social_' . $radio), ucfirst($radio));
+            $this->element('br');
         }
 
         $this->elementEnd('div');
 
         // jQueryUI calendar container
         $this->elementStart('div', array('class' => 'social_sdate_cal'));
-        $this->element('h3', null, 'Select a Date');
+//        $this->element('h3', null, 'Select a Date');
         $this->elementEnd('div');
 
         $this->element('div', array('class' => 'social_edate_cal'));
 
         /* Period */
-        $this->elementStart('div', array('class' => 'social_period'));
-        $this->element('h3', null, 'Confirm');
+//        $this->elementStart('div', array('class' => 'social_period'));
+        $this->elementStart('div', array('style' => 'margin-top: 10px; clear: both;'));
+//        $this->element('h3', null, 'Confirm');
         // Form input
-        $this->element('label', array('for' => 'social_start_date'), 'Start date:');
-        $this->element('input', array('id' => 'social_start_date', 'name' => 'sdate'));
-        $this->element('br');
-        $this->element('label', array('for' => 'social_end_date'), 'End date:');
-        $this->element('input', array('id' => 'social_end_date', 'name' => 'edate'));
+//        $this->element('label', array('for' => 'social_start_date'), 'Start date:');
+        $this->element('input', array('id' => 'social_start_date', 'name' => 'sdate', 'type' => 'hidden'));
+//        $this->element('br');
+//        $this->element('label', array('for' => 'social_end_date'), 'End date:');
+        $this->element('input', array('id' => 'social_end_date', 'name' => 'edate', 'type' => 'hidden'));
         $this->element('input', array('type' => 'submit', 'id' => 'social_submit_date'));
         $this->elementEnd('div');
         

@@ -13,6 +13,7 @@ var SA = {
         var sdate = new Date(dateText);
         var period = $('.social_date_picker input[type="radio"]').filter(':checked').attr('id');
 
+        // TODO: Clean this up
         switch(period) {
             case 'social_week':
                 var firstOfWeek = new Date(sdate.setUTCDate(sdate.getUTCDate() - sdate.getUTCDay()));
@@ -32,7 +33,7 @@ var SA = {
                 break;
             case 'social_year':
                 $('#social_start_date').val(sdate.getUTCFullYear() + '-01-01');
-                $('#social_end_date').val(sdate.getUTCFullYear() + '-12-31');
+                $('#social_end_date').val(sdate.getUTCFullYear() + '-12-31'); // This should probably be 'today'
                 break;
             case 'social_range':
                 $('#social_start_date').val(dateText);
