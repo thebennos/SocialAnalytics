@@ -131,13 +131,13 @@ class SocialAction extends Action
     }
 
     function printNavigation($sdate, $edate) {
-        $interval = $sdate->diff($edate);
-    	$url = common_local_url('social');
+        $url = common_local_url('social');
+        $sdate->modify('first day of last month');
 
         // Prev period
         $this->elementStart('ul', array('class' => 'social_nav'));
         $this->elementStart('li', array('class' => 'prev'));
-        $this->element('a', array('href' => $url . '?sdate=' . $sdate->sub($interval)->format('Y-m-d') . '&edate=' . $edate->sub($interval)->format('Y-m-d')), _m('Previous Period'));
+        $this->element('a', array('href' => $url . '?sdate=' . $sdate->format('Y-m-d') . '&edate=' . $sdate->modify('last day of this month')->format('Y-m-d')), 'Previous month');
         $this->elementEnd('li');
 
         $sdate->add($interval);
@@ -162,8 +162,9 @@ class SocialAction extends Action
         $this->elementEnd('li');
         
         // Next period
+        $edate->modify('first day of next month');
         $this->elementStart('li', array('class' => 'next'));
-        $this->element('a', array('href' => $url . '?sdate=' . $sdate->add($interval)->format('Y-m-d')  . '&edate=' . $edate->add($interval)->format('Y-m-d')) , _m('Next Period'));
+        $this->element('a', array('href' => $url . '?sdate=' . $edate->format('Y-m-d') . '&edate=' . $edate->modify('last day of this month')->format('Y-m-d')), 'Next month');
         $this->elementEnd('li');
         $this->elementEnd('ul');
     }
