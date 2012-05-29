@@ -43,6 +43,8 @@ var SA = {
             buttonImage: "/plugins/SocialAnalytics/images/calendar.png",  // FIXME: This won't work on instances installed in a subdir
             buttonImageOnly: true,
             dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true,
             maxDate: new Date()
         });
 
