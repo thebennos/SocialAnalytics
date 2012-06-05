@@ -7,15 +7,6 @@
 #social p.summary {margin: 0;}
 #social ul.summary {margin: 0 0 12px 20px;}
 
-/* Visualize modification */
-.visualize-labels-x {display: none;}
-body .visualize {margin: 0 30px 10px 30px; padding: 0;}
-.visualize-info div.visualize-title {display: none;}
-div.social_graph ul.visualize-key li {float: none;}
-div.trends_graph ul.visualize-key li {float: left;}
-div.trends_graph ul.visualize-key {width: 100%;}
-div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
-
 /* Data tables */
 .social_table caption {display: none;}
 .social_table {width: 100%; display: none;}
@@ -47,6 +38,27 @@ div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
 .social_nav .cust a {background: none;}
 .social_nav .prev a {background-position: 0 -188px; padding-left: 25px;}
 
+/* JS Switcher */
+#social_js_switcher {float: right; margin: 0;}
+
 /* Map */
 #mapdiv {height: 300px; margin: 0 30px 12px 30px !important; width: 700px;}
 div.olControlAttribution {bottom: 0;}
+
+/** CSS for JS backends **/
+/* Visualize */
+.sa_visualize .visualize-labels-x {display: none;}
+body .sa_visualize .visualize {margin: 0 30px 10px 30px; padding: 0;}
+.sa_visualize .visualize-info div.visualize-title {display: none;}
+.sa_visualize div.social_graph ul.visualize-key li {float: none;}
+.sa_visualize div.trends_graph ul.visualize-key li {float: left;}
+.sa_visualize div.trends_graph ul.visualize-key {width: 100%;}
+.sa_visualize div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
+
+/* flotr2 */
+.sa_flotr2 .social_wrapper {float: left; margin-right: 10px;}
+.sa_flotr2 .social_graph {width: 350px; height: 300px;}
+.sa_flotr2 .trends_graph {width: 758px; float: none;}
+.sa_flotr2 .social_nav_bottom {padding-top: 10px; clear: both;}
+.sa_flotr2 .sa_left {clear: left;}
+.sa_flotr2 .social_map_wrapper {clear: left;}

@@ -3,8 +3,10 @@ var SA = {
     bounds: new OpenLayers.Bounds(),
     lyrMarkers: new OpenLayers.Layer.Markers("Markers"),
     currentPopup: null,
-    viewHeight: $(window).height(), // Nothing to do with maps
+    viewHeight: $(window).height(),
+    graphLibs: [],
 
+    // Called once when page loads
     init: function() {
         // FIXME: Ugly fix to figure out if we have map data or not.
         if(typeof sa_following_coords != 'undefined' && typeof sa_followers_coords != 'undefined') {
@@ -23,7 +25,24 @@ var SA = {
             this.map.setCenter(center, this.map.getZoomForExtent(this.bounds) - 1);
         }
 
-        /* Common JS below. Nothing to do with the map */
+        // JS Switcher
+        $('#social_js_switcher').change(function() {
+            $('.social_graph').html('');
+            
+            // We've never loaded this lib.
+            if(typeof SA.graphLibs[$(this).val()] == 'undefined') {
+                var jsFilename = $(this).val();
+                var snRoot = window.location.pathname.replace(/\/social$/, '/');
+                $.getScript(snRoot + 'plugins/SocialAnalytics/js/lib/' + jsFilename, function(){
+                    $.getScript(snRoot + 'plugins/SocialAnalytics/js/tbl2js/' + jsFilename, function() {SA.graphLibs[jsFilename]();});
+                });
+            } // Lib's already loaded, just call it
+            else {
+                SA.graphLibs[$(this).val()]();
+            }
+        });
+        $('#social_js_switcher').trigger('change'); // Create the graphs for the 1st time (with default selected lib)
+
         // Show/hide custom date form
         $('.social_nav_top .cust a').click(function(e) {
             e.preventDefault();
@@ -85,12 +104,14 @@ var SA = {
         });        
     },
 
+    // Calls SA.addMarker() for each item in array
     addMarkers: function(arr, icon) {
         for(var i=0; i<arr.length; i++) {
             this.addMarker(arr[i].lon, arr[i].lat, arr[i].nickname, icon);
         }
     },
 
+    // Adds a marker to the map
     addMarker: function(lon, lat, nickname, icon_filename) {
         var lonLat = new OpenLayers.LonLat(lon, lat)
             .transform(
@@ -110,6 +131,7 @@ var SA = {
         this.lyrMarkers.addMarker(marker);
     },
 
+    // Creates a popup that will show up when clicking on the marker
     newPopup: function(lonLat, content) {
         var popupClass = OpenLayers.Class(OpenLayers.Popup.FramedCloud, {
             "autoSize": true,
@@ -127,6 +149,7 @@ var SA = {
         return popup;
     },
 
+    // Triggered when clicking on a map marker
     markerClick: function(evt) {
         if (SA.currentPopup != null && SA.currentPopup.visible()) {
             SA.currentPopup.hide();
@@ -142,7 +165,7 @@ var SA = {
         OpenLayers.Event.stop(evt);
     },
 
-    // Nothing to do with maps
+    // If jQuery Dialog height is longer than viewport, shorten and add scrollbar
     dialogResize: function() {
         var ulHeight = $(this).outerHeight();
         var dialogHeight = $(this).parent().outerHeight();

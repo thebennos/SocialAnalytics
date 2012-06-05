@@ -174,7 +174,10 @@ class SocialAction extends Action
     function printGraph($name, $rows) {
         if(count($rows) < 1) { // Skip empty tables
             return;
-        } 
+        }
+
+        // Wrapper
+        $this->elementStart('div', array('class' => 'social_wrapper ' . $name . '_wrapper')); 
 
         // Title
         $this->element('h3', null, ucfirst(str_replace('_', ' ', _m($name))));
@@ -261,6 +264,8 @@ class SocialAction extends Action
         }
         $this->elementEnd('tbody');
         $this->elementEnd('table');
+
+        $this->elementEnd('div'); // Wrapper
     }
 
     /**
@@ -282,6 +287,24 @@ class SocialAction extends Action
 
         // Navigation
         $this->printNavigation($this->sa->sdate, $this->sa->edate, 'top');
+
+        // JS switcher
+        $jslibs = array();
+        if($fd = opendir(dirname(__FILE__) . '/js/lib')) {
+            while (false !== ($entry = readdir($fd))) {
+                if ($entry == '.' || $entry == '..') { // FIXME: Probably want to just include files ending in '.js'
+                    continue;
+                }
+                $jslibs[] = $entry; // TODO: Just keep what comes before the 1st '.' in the filename
+            }
+            closedir($fd);
+
+            $this->elementStart('select', array('id' => 'social_js_switcher', 'style' => (count($jslibs) > 1) ? '' : 'display: none;'));
+            foreach($jslibs as $jslib) {
+                $this->element('option', array('value' => $jslib), $jslib);
+            }
+            $this->elementEnd('select');
+        }
 
         // Summary
         $this->element('h3', null, 'Summary');
@@ -329,6 +352,9 @@ class SocialAction extends Action
 
         // If we have map data
         if(count($this->sa->map)) {
+            // Wrapper
+            $this->elementStart('div', array('class' => 'social_map_wrapper'));
+
             // Print Map title
             $this->element('h3', null, 'Location of new subscriptions');
             $this->element('p', null, 'Red: you started following, blue: started to follow you');
@@ -339,6 +365,8 @@ class SocialAction extends Action
             // JS variables (used by js/map.js)
             $this->inlineScript('var sa_following_coords = ' . $this->getCoords('following') . ';
                 var sa_followers_coords = ' . $this->getCoords('followers') . ';');
+
+            $this->elementEnd('div'); // Wrapper
         }
 
         // Navigation
