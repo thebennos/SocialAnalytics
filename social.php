@@ -311,35 +311,35 @@ class SocialAction extends Action
         $this->element('p', array('class' => 'summary'), 'During this time, you:');
         $this->elementStart('ul', array('class' => 'summary'));
 
-        $this->elementStart('li');
+        $this->elementStart('li', array('class' => 'posts'));
         $this->text('posted ' . $this->sa->ttl_notices . ' notice(s). (Daily avg: ' . round($this->sa->ttl_notices/count($this->sa->graphs['trends'])) . ')');
         $this->elementEnd('li');
 
-        $this->elementStart('li');
+        $this->elementStart('li', array('class' => 'bookmarks'));
         $this->text('posted ' . $this->sa->ttl_bookmarks . ' bookmarks(s)');
         $this->elementEnd('li');
 
-        $this->elementStart('li');
+        $this->elementStart('li', array('class' => 'follow'));
         $this->text('followed ' . $this->sa->ttl_following . ' new people');
         $this->elementEnd('li');
 
-        $this->elementStart('li');
+        $this->elementStart('li', array('class' => 'follow'));
         $this->text('gained ' . $this->sa->ttl_followers . ' followers');
         $this->elementEnd('li');
 
-        $this->elementStart('li');
+        $this->elementStart('li', array('class' => 'favs'));
         $this->text('favorited ' . $this->sa->ttl_faves . ' notices');
         $this->elementEnd('li');
 
-        $this->elementStart('li');
+        $this->elementStart('li', array('class' => 'favs'));
         $this->text('had people favor your notices ' . $this->sa->ttl_o_faved . ' times');
         $this->elementEnd('li');
 
-        $this->elementStart('li');
+        $this->elementStart('li', array('class' => 'replies'));
         $this->text('were mentioned ' . $this->sa->ttl_mentions . ' times, by ' . count($this->sa->graphs['people_who_mentioned_you']) . ' different people');
         $this->elementEnd('li');
 
-        $this->elementStart('li');
+        $this->elementStart('li', array('class' => 'replies'));
         $this->text('replied to ' . count($this->sa->graphs['people_you_replied_to']) . ' people, for a total of ' . $this->sa->ttl_replies . ' replies');
         $this->elementEnd('li');        
         

@@ -74,7 +74,6 @@ class SocialAnalyticsPlugin extends Plugin
 
     function onEndShowScripts($action)
     {
-        // $action->script($this->path('js/lib/visualize.jQuery.js'));
         $action->script('http://www.openlayers.org/api/OpenLayers.js');
         $action->script($this->path('js/sa.js'));
         return true;
