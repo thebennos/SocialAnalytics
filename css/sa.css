@@ -55,10 +55,10 @@ body .sa_visualize .visualize {margin: 0 30px 10px 30px; padding: 0;}
 .sa_visualize div.trends_graph ul.visualize-key {width: 100%;}
 .sa_visualize div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
 
-/* flotr2 */
-.sa_flotr2 .social_wrapper {float: left; margin-right: 10px;}
-.sa_flotr2 .social_graph {width: 350px; height: 300px;}
-.sa_flotr2 .trends_graph {width: 758px; float: none;}
-.sa_flotr2 .social_nav_bottom {padding-top: 10px; clear: both;}
-.sa_flotr2 .sa_left {clear: left;}
-.sa_flotr2 .social_map_wrapper {clear: left;}
+/* flotr2 & highcharts */
+.sa_flotr2 .social_wrapper, .sa_highcharts .social_wrapper {float: left; margin-right: 10px;}
+.sa_flotr2 .social_graph, .sa_highcharts .social_graph {width: 350px; height: 300px;}
+.sa_flotr2 .trends_graph, .sa_highcharts .trends_graph {width: 758px; float: none;}
+.sa_flotr2 .social_nav_bottom, .sa_highcharts .social_nav_bottom {padding-top: 10px; clear: both;}
+.sa_flotr2 .sa_left, .sa_highcharts .sa_left {clear: left;}
+.sa_flotr2 .social_map_wrapper, .sa_highcharts .social_map_wrapper {clear: left;}
