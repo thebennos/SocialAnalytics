@@ -14,7 +14,6 @@ SA.graphLibs['highcharts.js'] = function() {
     /* Trends chart */
     var trends = [],
         trendsHeaders = [],
-        objs = [],
         tmp  = {};
 
     // Fetch headings and init sub-arrays

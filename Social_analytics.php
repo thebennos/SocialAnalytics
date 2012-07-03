@@ -87,7 +87,9 @@ class Social_analytics extends Memcached_DataObject
             'clients' => array(),
             'people_you_replied_to' => array(),
             'people_who_mentioned_you' => array(),
-            'people_you_repeated' => array()
+            'people_you_repeated' => array(),
+            'notices_per_group' => array(),
+            'notices_per_hashtag' => array()
         );
         $sa->map = array();
 
@@ -123,6 +125,18 @@ class Social_analytics extends Memcached_DataObject
 
         foreach($notices->_items as $notice) {
             $date_created->modify($notice->created); // String to Date
+
+            // Extract group info
+            $group_ids = Notice::groupsFromText($notice->content, Profile::staticGet('id',$sa->user_id));
+            foreach($group_ids as $group_id) {
+                $sa->graphs['notices_per_group'][User_group::staticGet('id', $group_id)->nickname]['notices'][] = $notice;
+            }
+
+            // Extract hashtag info
+            $hashtags = $notice->getTags();
+            foreach($hashtags as $hashtag) {
+                $sa->graphs['notices_per_hashtag'][$hashtag]['notices'][] = $notice;
+            }
 
             // Repeats
             if($notice->repeat_of) {

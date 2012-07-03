@@ -3,9 +3,11 @@ SA.graphLibs['visualize.jQuery.js'] = function() {
     // Apply visualize CSS
     $('#content_inner').attr('class', 'sa_visualize');
 
+    // Generate line chart
     $('#trends_table').visualize({type: 'line', width: 700, height: 300, parseDirection: 'y', colFilter: ':not(.visualize-ignore)', rowFilter: ':not(.visualize-ignore)'})
         .appendTo('.trends_graph');
 
+    /* Clickable table headers in "Trends" table hides/shows series in line graph */
     // For each table header in the first table row
     $('#trends_table tr:eq(0) th').each(function(i, th) {
         // Build the link that will be wrapped around the table header
@@ -28,10 +30,7 @@ SA.graphLibs['visualize.jQuery.js'] = function() {
 
     // Generate pie charts
     $('table.social_pie').each(function(){
-        var graphContainer = $('.' + $(this).attr('id').replace(/_table$/, '_graph'))
-            .attr('style', ''); // Remove flotr2 styles // TODO: Don't add inline styles in the 1st place
-        
         $(this).visualize({type: 'pie', width: 700, height: 300})
-            .appendTo(graphContainer);
+            .appendTo($('.' + $(this).attr('id').replace(/_table$/, '_graph')));
     });
 }
