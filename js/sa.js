@@ -32,7 +32,7 @@ var SA = {
             // We've never loaded this lib.
             if(typeof SA.graphLibs[$(this).val()] == 'undefined') {
                 var jsFilename = $(this).val();
-                var snRoot = window.location.pathname.replace(/\/social$/, '/');
+                var snRoot = window.location.pathname.replace(/(\/index\.php)?\/social$/, '/');
                 $.getScript(snRoot + 'plugins/SocialAnalytics/js/lib/' + jsFilename, function(){
                     $.getScript(snRoot + 'plugins/SocialAnalytics/js/tbl2js/' + jsFilename, function() {SA.graphLibs[jsFilename]();});
                 });
