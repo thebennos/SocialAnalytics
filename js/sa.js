@@ -77,7 +77,7 @@
             $('.social_table td').each(function () {
                 var $this   = $(this),
                     caption = $this.parents('table').children('caption').text(),
-                    diag    = $this.children('ul').dialog({autoOpen: false, title: caption, open: SA.dialogResize}),
+                    diag    = $this.children('ul').dialog({autoOpen: false, title: caption, open: SA.dialogResize, width: 700, modal: true}),
                     num     = $this.text();
 
                 diag.parent().css('max-height', SA.viewHeight + 'px');

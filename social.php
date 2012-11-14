@@ -31,6 +31,9 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
+// For SingleNoticeItem class
+require_once INSTALLDIR.'/actions/shownotice.php';
+
 /**
  * Plugin to give insights into what's happening in your social network over time.
  *
@@ -241,9 +244,8 @@ class SocialAction extends Action
                     switch(get_class(current($cell))) {
                         case 'Notice':
                             foreach($cell as $notice) {
-                                $this->elementStart('li');
-                                $this->raw($notice->rendered);
-                                $this->elementEnd('li');
+                                $nli = new SingleNoticeItem($notice, $this);
+                                $nli->show();
                             }
                             break;
                         case 'Profile':

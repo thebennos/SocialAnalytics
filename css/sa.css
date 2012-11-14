@@ -6,6 +6,8 @@
 #social .input_forms {display: none;}
 #social p.summary {margin: 0;}
 #social ul.summary {margin: 0 0 12px 20px;}
+#social .notice .entry-title {margin: 2px 7px 0 59px; min-height: 35px;}
+#social .notice .author .photo {display: inline; float: none; left: 0; margin-right: 11px; position: absolute; top: 7px;}
 
 /* Summary */
 #social ul.summary {list-style-type: none; margin: 0; padding: 0;}
