@@ -13,7 +13,14 @@
         // Called once when page loads
         init: function () {
             var center,
-                snRoot = window.location.pathname.replace(/(\/index\.php)?\/social$/, '/');
+                snRoot = window.location.pathname.replace(/(\/index\.php)?\/social$/, '/'),
+                $dial = $('<div id="sa-dialog"></div>').dialog({
+                    autoOpen: false,
+                    maxHeight: SA.viewHeight,
+                    modal: true,
+                    open: SA.dialogResize,
+                    width: 700
+                });
 
             // FIXME: Ugly fix to figure out if we have map data or not.
             if (sa_following_coords !== undefined && sa_followers_coords !== undefined) {
@@ -76,23 +83,24 @@
             // Wrap <td> numbers in a link that will show <td> details when clicked on.
             $('.social_table td').each(function () {
                 var $this   = $(this),
-                    caption = $this.parents('table').children('caption').text(),
-                    diag    = $this.children('ul').dialog({autoOpen: false, title: caption, open: SA.dialogResize, width: 700, modal: true}),
-                    num     = $this.text();
+                    caption = $this.closest('table').children('caption').text(),
+                    content = $this.children('ul'),
+                    $link   = $('<a href="#"></a>'),
+                    $num    = $this.children('span');
 
-                diag.parent().css('max-height', SA.viewHeight + 'px');
-
-                if (num === '0') {
+                if ($num.text() === '0') {
                     return;
                 }
 
-                $this.empty();
-                $('<a href="#">' + num + '</a>').click(function (e) {
+                $link.click(function (e) {
                     e.preventDefault();
                     e.stopPropagation();
+                    $dial.html(content)
+                        .dialog('option', 'title', caption)
+                        .dialog('open');
+                });
 
-                    diag.dialog('open');
-                }).appendTo(this);
+                $num.wrap($link);
             });
 
             // Show/hide data tables

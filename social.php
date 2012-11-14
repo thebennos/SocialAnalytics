@@ -236,7 +236,8 @@ class SocialAction extends Action
             // Data cells
             foreach($data as $cell) {
                 $this->elementStart('td');
-                $this->text(count($cell));
+                $this->element('span', null, count($cell));
+//                $this->text(count($cell));
 
                 // Detailed information (appears onclick)
                 if(count($cell) !== 0) {
