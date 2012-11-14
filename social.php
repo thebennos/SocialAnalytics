@@ -42,8 +42,8 @@ if (!defined('STATUSNET')) {
  */
 class SocialAction extends Action
 {
-    var $user = null;
-    var $sa   = null;
+    public $user = null;
+    public $sa   = null;
 
     // TODO: Document
     function sortGraph($a, $b) {
@@ -202,10 +202,9 @@ class SocialAction extends Action
         // FIXME: This is hackish
         if($name != 'trends') { // Ignore the 'trends' table since it's ok to have more than 10 rows
             $nb_rows = count($rows);
+            uasort($rows, array($this, 'sortGraph'));
 
             if($nb_rows > 9) { // For other tables, limit the rows to 9 and shove everything else in 'other'
-                uasort($rows, array($this, 'sortGraph'));
-
                 $other = array();
                 $keys = array_keys($rows);
                 for($i=9; $i<$nb_rows; $i++) {
