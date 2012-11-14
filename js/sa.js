@@ -3,9 +3,9 @@
     SA = (typeof window.SA !== 'undefined' && window.SA !== null) ? window.SA : {};
 
     _SA = {
-        map: new OpenLayers.Map("mapdiv"),
+        map: new OpenLayers.Map('mapdiv'),
         bounds: new OpenLayers.Bounds(),
-        lyrMarkers: new OpenLayers.Layer.Markers("Markers"),
+        lyrMarkers: new OpenLayers.Layer.Markers('Markers'),
         currentPopup: null,
         viewHeight: $(window).height(),
         graphLibs: [],
@@ -64,8 +64,8 @@
 
             // Bind datepickers
             $('#social_start_date_top, #social_end_date_top, #social_start_date_bottom, #social_end_date_bottom').datepicker({
-                showOn: "button",
-                buttonImage: snRoot + "plugins/SocialAnalytics/images/calendar.png",
+                showOn: 'button',
+                buttonImage: snRoot + 'plugins/SocialAnalytics/images/calendar.png',
                 buttonImageOnly: true,
                 dateFormat: 'yy-mm-dd',
                 changeMonth: true,
@@ -125,14 +125,14 @@
 
             lonLat = new OpenLayers.LonLat(lon, lat)
                 .transform(
-                    new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                    new OpenLayers.Projection('EPSG:4326'), // transform from WGS 1984
                     this.map.getProjectionObject()          // to Spherical Mercator Projection
                 );
 
             this.bounds.extend(lonLat);
 
             size = new OpenLayers.Size(21, 25);
-            icon = new OpenLayers.Icon("http://www.openlayers.org/dev/img/" + icon_filename,
+            icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/' + icon_filename,
                                 size,
                                 new OpenLayers.Pixel(-(size.w / 2), -size.h));
 
@@ -145,10 +145,10 @@
         newPopup: function (lonLat, content) {
             var popup      = new OpenLayers.Feature(this.lyrMarkers, lonLat),
                 popupClass = OpenLayers.Class(OpenLayers.Popup.FramedCloud, {
-                    "autoSize": true,
-                    "minSize": new OpenLayers.Size(300, 50),
-                    "maxSize": new OpenLayers.Size(500, 300),
-                    "keepInMap": true
+                    'autoSize': true,
+                    'minSize': new OpenLayers.Size(300, 50),
+                    'maxSize': new OpenLayers.Size(500, 300),
+                    'keepInMap': true
                 });
 
             popup.closeBox = true;
