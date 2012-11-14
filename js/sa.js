@@ -16,11 +16,9 @@
                 snRoot = window.location.pathname.replace(/(\/index\.php)?\/social$/, '/'),
                 $dial = $('<div id="sa-dialog"></div>').dialog({
                     autoOpen: false,
-                    maxHeight: SA.viewHeight,
                     modal: true,
-                    open: SA.dialogResize,
                     width: 700
-                });
+                }).css('max-height', SA.viewHeight);
 
             // FIXME: Ugly fix to figure out if we have map data or not.
             if (sa_following_coords !== undefined && sa_followers_coords !== undefined) {
@@ -181,18 +179,6 @@
             }
             SA.currentPopup = this.popup;
             OpenLayers.Event.stop(evt);
-        },
-
-        // If jQuery Dialog height is longer than viewport, shorten and add scrollbar
-        dialogResize: function () {
-            var $this        = $(this),
-                ulHeight     = $this.outerHeight(),
-                dialogHeight = $this.parent().outerHeight(),
-                headerHeight = $this.siblings('.ui-dialog-titlebar').first().outerHeight();
-
-            if (ulHeight > dialogHeight) {
-                $this.css({'overflow': 'scroll', 'max-height': dialogHeight - headerHeight + 'px'});
-            }
         }
     };
 
