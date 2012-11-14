@@ -12,7 +12,9 @@
 
         // Called once when page loads
         init: function () {
-            var center;
+            var center,
+                snRoot = window.location.pathname.replace(/(\/index\.php)?\/social$/, '/');
+
             // FIXME: Ugly fix to figure out if we have map data or not.
             if (sa_following_coords !== undefined && sa_followers_coords !== undefined) {
                 this.map.addLayer(new OpenLayers.Layer.OSM());
@@ -36,8 +38,7 @@
 
                 // We've never loaded this lib.
                 if (SA.graphLibs[$(this).val()] === undefined) {
-                    var jsFilename = $(this).val(),
-                        snRoot     = window.location.pathname.replace(/(\/index\.php)?\/social$/, '/');
+                    var jsFilename = $(this).val();
 
                     $.getScript(snRoot + 'plugins/SocialAnalytics/js/lib/' + jsFilename, function () {
                         $.getScript(snRoot + 'plugins/SocialAnalytics/js/tbl2js/' + jsFilename, function () { SA.graphLibs[jsFilename](); });
@@ -64,7 +65,7 @@
             // Bind datepickers
             $('#social_start_date_top, #social_end_date_top, #social_start_date_bottom, #social_end_date_bottom').datepicker({
                 showOn: "button",
-                buttonImage: "/plugins/SocialAnalytics/images/calendar.png",  // FIXME: This won't work on instances installed in a subdir
+                buttonImage: snRoot + "plugins/SocialAnalytics/images/calendar.png",
                 buttonImageOnly: true,
                 dateFormat: 'yy-mm-dd',
                 changeMonth: true,
