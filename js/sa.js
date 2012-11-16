@@ -78,6 +78,41 @@
                 maxDate: new Date()
             });
 
+            function callback(elm) {
+                return function (data) {
+                    var date    = new Date(data.created_at), // TODO: handle cases when this fails
+                        caption = elm.closest('table').children('caption').text(),
+                        html    = '<div class="entry-title">\
+    <div class="author">\
+     <span class="vcard author">\
+      <a href="' + data.user.statusnet_profile_url + '" class="url" title="' + data.user.screen_name + '">\
+       <img width="48" height="48" src="' + data.user.profile_image_url + '" class="avatar photo" alt="' + data.user.screen_name + '">\
+        <span class="fn">' + data.user.screen_name + '</span>\
+      </a>\
+     </span>\
+    </div>\
+    <p class="entry-content">' + data.statusnet_html + '</p>\
+    </div>\
+    <div class="entry-content">\
+    <a rel="bookmark" class="timestamp" href="' + snRoot + 'notice/' + data.id + '">\
+     <abbr class="published" title="' + data.created_at  + '">' + date.toISOString().split('T')[0] + '</abbr>\
+    </a>\
+     <span class="source">from <span class="device">\
+      <a href="' + snRoot + 'notice/' + data.id + '" rel="external">' + data.source + '</a>\
+     </span>\
+    </span>\
+    </div>';
+                    elm.html(html)
+                        .addClass('ajaxed notice');
+
+                    if (elm.siblings('li').not('.ajaxed').length === 0) {
+                        $dial.html(elm.closest('ul'))
+                            .dialog('option', 'title', caption)
+                            .dialog('open');
+                    }
+                };
+            }
+
             // Wrap <td> numbers in a link that will show <td> details when clicked on.
             $('.social_table td').each(function () {
                 var $this   = $(this),
@@ -93,9 +128,28 @@
                 $link.click(function (e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    $dial.html(content)
-                        .dialog('option', 'title', caption)
-                        .dialog('open');
+                    var $this = $(this);
+
+                    // TODO: Add loading indicator until we get all the data/errors.
+                    if ($this.hasClass('ajaxed')) {
+                        $dial.html(content)
+                            .dialog('option', 'title', caption)
+                            .dialog('open');
+                    } else {
+                        $this.addClass('ajaxed');
+                        $this.siblings('ul').children('li').each(function () {
+                            var $this = $(this);
+                            $.ajax({
+                                url: snRoot + 'api/statuses/show.json?id=' + $this.attr('class'),
+                                dataType: 'json',
+                                success: callback($this),
+                                error: function (xhr, txt, err) {
+                                    // TODO: Handle this properly.
+                                    $this.addClass('ajaxed');
+                                }
+                            });
+                        });
+                    }
                 });
 
                 $num.wrap($link);
