@@ -93,15 +93,21 @@
     </div>\
     <p class="entry-content">' + data.statusnet_html + '</p>\
     </div>\
-    <div class="entry-content">\
+    <div class="entry-content">on \
     <a rel="bookmark" class="timestamp" href="' + snRoot + 'notice/' + data.id + '">\
      <abbr class="published" title="' + data.created_at  + '">' + date.toISOString().split('T')[0] + '</abbr>\
     </a>\
      <span class="source">from <span class="device">\
       <a href="' + snRoot + 'notice/' + data.id + '" rel="external">' + data.source + '</a>\
      </span>\
-    </span>\
-    </div>';
+    </span> ';
+                    if(data.retweeted_status !== undefined || data.in_reply_to_user_id !== null) {
+                        html += '<a class="response" href="' + snRoot + 'conversation/' + 
+                            data.statusnet_conversation_id + '#notice-' + data.id + '">in context</a>';
+                    }
+
+                    html += '</div>';
+
                     elm.html(html)
                         .addClass('ajaxed notice');
 
