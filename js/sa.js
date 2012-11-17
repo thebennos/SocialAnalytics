@@ -101,6 +101,7 @@
       <a href="' + snRoot + 'notice/' + data.id + '" rel="external">' + data.source + '</a>\
      </span>\
     </span> ';
+                    // If it's a repeat or a reply, show in context link
                     if(data.retweeted_status !== undefined || data.in_reply_to_user_id !== null) {
                         html += '<a class="response" href="' + snRoot + 'conversation/' + 
                             data.statusnet_conversation_id + '#notice-' + data.id + '">in context</a>';
@@ -111,10 +112,12 @@
                     elm.html(html)
                         .addClass('ajaxed notice');
 
+                    // If we have all the notices, place them in the dialog
                     if (elm.siblings('li').not('.ajaxed').length === 0) {
-                        $dial.html(elm.closest('ul'))
-                            .dialog('option', 'title', caption)
-                            .dialog('open');
+                        $dial.html(elm.closest('ul'));
+
+                        // Reposition
+                        $dial.dialog('option', 'position', $dial.dialog('option', 'position'));
                     }
                 };
             }
@@ -143,6 +146,9 @@
                             .dialog('open');
                     } else {
                         $this.addClass('ajaxed');
+                        $dial.html('<div class="sa-processing"></div>')
+                            .dialog('option', 'title', caption)
+                            .dialog('open');
                         $this.siblings('ul').children('li').each(function () {
                             var $this = $(this);
                             $.ajax({
@@ -150,8 +156,11 @@
                                 dataType: 'json',
                                 success: callback($this),
                                 error: function (xhr, txt, err) {
-                                    // TODO: Handle this properly.
+                                    // Fall back to non-rich data
                                     $this.addClass('ajaxed');
+                                    $dial.html(content)
+                                        .dialog('option', 'title', caption)
+                                        .dialog('open');
                                 }
                             });
                         });

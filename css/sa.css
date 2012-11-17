@@ -30,6 +30,7 @@
 .ui-dialog ul li {border-bottom: 1px solid #CCC; padding: 3px 0;}
 .social_table td ul {display: none;}
 .social_table td a {font-weight: bold;}
+.sa-processing {background: url(../images/icon_processing.gif) no-repeat center center; width: 100%; height: 16px;}
 
 /* Date picker */
 .social_date_picker {background-color: #FFF; display: none; position: absolute; top: 100%; left: 0; text-align: left; border: 1px solid #000; border-radius: 5px; padding: 10px; margin-top: 5px; z-index: 999;}
