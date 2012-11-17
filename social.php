@@ -307,16 +307,16 @@ class SocialAction extends Action
         $jslibs = array();
         if($fd = opendir(dirname(__FILE__) . '/js/lib')) {
             while (false !== ($entry = readdir($fd))) {
-                if ($entry == '.' || $entry == '..') { // FIXME: Probably want to just include files ending in '.js'
-                    continue;
+                if(preg_match('/\.js$/', $entry)) {
+                    $jslibs[] = $entry;
                 }
-                $jslibs[] = $entry; // TODO: Just keep what comes before the 1st '.' in the filename
             }
             closedir($fd);
 
             $this->elementStart('select', array('id' => 'social_js_switcher', 'style' => (count($jslibs) > 1) ? '' : 'display: none;'));
             foreach($jslibs as $jslib) {
-                $this->element('option', array('value' => $jslib), $jslib);
+                $name = explode('.', $jslib);
+                $this->element('option', array('value' => $jslib), $name[0]);
             }
             $this->elementEnd('select');
         }
@@ -377,27 +377,15 @@ class SocialAction extends Action
             // Map container
             $this->element('div', array('id' => 'mapdiv'));
 
-            // JS variables (used by js/map.js)
-            $this->inlineScript('var sa_following_coords = ' . $this->getCoords('following') . ';
-                var sa_followers_coords = ' . $this->getCoords('followers') . ';');
+            // JS variables (used by js/sa.js)
+            $this->inlineScript('var sa_following_coords = [' . implode(',', $this->sa->map['following']) . '];
+                var sa_followers_coords = [' . implode(',', $this->sa->map['followers']) . '];');
 
             $this->elementEnd('div'); // Wrapper
         }
 
         // Navigation
         $this->printNavigation($this->sa->sdate, $this->sa->edate, 'bottom');
-    }
-
-    function getCoords($name) {
-        $markers = '[';
-
-        // FIXME: Just store this in JS notation in $this->sa->map['following']['nickname'] to being with
-        foreach($this->sa->map[$name] as $nickname => $coords) {
-            $markers .= '{ lon: "' . $coords['lon'] . '", lat: "'  . $coords['lat'] . '", nickname: "' . $nickname . '"},';
-        }
-
-        $markers = rtrim($markers, ',');
-        return $markers . ']';
     }
 
     /**

@@ -102,8 +102,8 @@
      </span>\
     </span> ';
                     // If it's a repeat or a reply, show in context link
-                    if(data.retweeted_status !== undefined || data.in_reply_to_user_id !== null) {
-                        html += '<a class="response" href="' + snRoot + 'conversation/' + 
+                    if (data.retweeted_status !== undefined || data.in_reply_to_user_id !== null) {
+                        html += '<a class="response" href="' + snRoot + 'conversation/' +
                             data.statusnet_conversation_id + '#notice-' + data.id + '">in context</a>';
                     }
 
@@ -158,7 +158,7 @@
                             // Notice
                             if ($this.hasClass('sa-notice')) {
                                 $this.removeClass('sa-notice');
-                                
+
                                 // Fetch notice data
                                 $.ajax({
                                     url: snRoot + 'api/statuses/show.json?id=' + $this.attr('class'),
