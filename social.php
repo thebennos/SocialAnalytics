@@ -244,15 +244,28 @@ class SocialAction extends Action
                     switch(get_class(current($cell))) {
                         case 'Notice':
                             foreach($cell as $notice) {
-                                $this->elementStart('li', array('class' => $notice->id));
+                                $this->elementStart('li', array('class' => 'sa-notice ' . $notice->id));
                                 $this->raw($notice->rendered);
                                 $this->elementEnd('li');
                             }
                             break;
                         case 'Profile':
                             foreach($cell as $follower) {
-                                $this->elementStart('li');
-                                $this->text($follower->nickname);
+                                $avatar = $follower->getAvatar(48);
+
+                                // Building 'notice-like' HTML to display brief profile info
+                                $this->elementStart('li', array('class' => 'notice')); // notice class is for CSS styles only
+                                $this->elementStart('div', array('class' => 'entry-title'));
+                                $this->elementStart('div', array('class' => 'author'));
+                                $this->elementStart('span', array('class' => 'vcard author'));
+                                $this->elementStart('a', array('class' => 'url', 'title' => $follower->nickname, 'href' => $follower->profileurl));
+                                $this->element('img', array('width' => '48', 'height' => '48', 'alt' => $follower->nickname, 'class' => 'avatar photo', 'src' => $avatar->url));
+                                $this->element('span', array('class' => 'fn'), $follower->nickname);
+                                $this->elementEnd('a');
+                                $this->elementEnd('span');
+                                $this->elementEnd('div');
+                                $this->element('p', array('class' => 'entry-content'), $follower->bio);
+                                $this->elementEnd('div');
                                 $this->elementEnd('li');
                             }
                             break;

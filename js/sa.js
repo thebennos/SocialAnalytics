@@ -139,30 +139,44 @@
                     e.stopPropagation();
                     var $this = $(this);
 
-                    // TODO: Add loading indicator until we get all the data/errors.
+                    // If we already fetched the data, just show it
                     if ($this.hasClass('ajaxed')) {
                         $dial.html(content)
                             .dialog('option', 'title', caption)
                             .dialog('open');
                     } else {
-                        $this.addClass('ajaxed');
+                        $this.addClass('ajaxed'); // Mark as fetched
+
+                        // Loading indicator
                         $dial.html('<div class="sa-processing"></div>')
                             .dialog('option', 'title', caption)
                             .dialog('open');
+
                         $this.siblings('ul').children('li').each(function () {
                             var $this = $(this);
-                            $.ajax({
-                                url: snRoot + 'api/statuses/show.json?id=' + $this.attr('class'),
-                                dataType: 'json',
-                                success: callback($this),
-                                error: function (xhr, txt, err) {
-                                    // Fall back to non-rich data
-                                    $this.addClass('ajaxed');
-                                    $dial.html(content)
-                                        .dialog('option', 'title', caption)
-                                        .dialog('open');
-                                }
-                            });
+
+                            // Notice
+                            if ($this.hasClass('sa-notice')) {
+                                $this.removeClass('sa-notice');
+                                
+                                // Fetch notice data
+                                $.ajax({
+                                    url: snRoot + 'api/statuses/show.json?id=' + $this.attr('class'),
+                                    dataType: 'json',
+                                    success: callback($this),
+                                    error: function (xhr, txt, err) {
+                                        // Fall back to non-rich data
+                                        $this.addClass('ajaxed');
+                                        $dial.html(content)
+                                            .dialog('option', 'title', caption)
+                                            .dialog('open');
+                                    }
+                                });
+                            } else { // Profile
+                                $dial.html(content)
+                                    .dialog('option', 'title', caption)
+                                    .dialog('open');
+                            }
                         });
                     }
                 });
