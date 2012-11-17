@@ -21,7 +21,7 @@
                 }).css('max-height', SA.viewHeight);
 
             // FIXME: Ugly fix to figure out if we have map data or not.
-            if (sa_following_coords !== undefined && sa_followers_coords !== undefined) {
+            if (sa_following_coords !== undefined || sa_followers_coords !== undefined) {
                 this.map.addLayer(new OpenLayers.Layer.OSM());
                 this.map.addLayer(this.lyrMarkers);
 
@@ -242,7 +242,7 @@
 
             popup.closeBox = true;
             popup.popupClass = popupClass;
-            popup.data.popupContentHTML = content;
+            popup.data.popupContentHTML = $('a.url[href="' + content + '"]').first().closest('li').html();
             popup.data.overflow = 'auto';
 
             return popup;
