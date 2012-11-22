@@ -21,15 +21,15 @@
                 }).css('max-height', SA.viewHeight);
 
             // FIXME: Ugly fix to figure out if we have map data or not.
-            if (sa_following_coords !== undefined || sa_followers_coords !== undefined) {
+            if (typeof sa_following_coords !== 'undefined' || typeof sa_followers_coords !== 'undefined') {
                 this.map.addLayer(new OpenLayers.Layer.OSM());
                 this.map.addLayer(this.lyrMarkers);
 
                 // FIXME: sa_follow{ing,ers}_coords is generated with PHP and globally defined in the markup
-                if (sa_following_coords !== undefined) {
+                if (typeof sa_following_coords !== 'undefined') {
                     this.addMarkers(sa_following_coords, 'marker.png');
                 }
-                if (sa_followers_coords !== undefined) {
+                if (typeof sa_followers_coords !== 'undefined') {
                     this.addMarkers(sa_followers_coords, 'marker-blue.png');
                 }
 
@@ -102,7 +102,7 @@
      </span>\
     </span> ';
                     // If it's a repeat or a reply, show in context link
-                    if (data.retweeted_status !== undefined || data.in_reply_to_user_id !== null) {
+                    if (typeof data.retweeted_status !== 'undefined '|| data.in_reply_to_user_id !== null) {
                         html += '<a class="response" href="' + snRoot + 'conversation/' +
                             data.statusnet_conversation_id + '#notice-' + data.id + '">in context</a>';
                     }
