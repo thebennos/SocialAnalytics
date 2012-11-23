@@ -91,7 +91,7 @@ class SocialAnalyticsPlugin extends Plugin
 
     function onEndShowStyles($action)
     {
-        if($this->isSocial()) {
+        if($this->isSocial() && common_logged_in()) {
             $action->cssLink($this->path('css/visualize-light.css'));
             $action->cssLink($this->path('css/visualize.css'));
             $action->cssLink($this->path('css/sa.css'));
