@@ -231,7 +231,9 @@ class SocialAction extends Action
         $this->elementStart('tbody');
         foreach($rows as $date => $data) {
             $this->elementStart('tr');
-            $this->element('th', null, $date);
+            $this->element('th', null, $date); // TODO: Rich data except for the 'trends' table
+                                               //       This can be a profile, group, hashtag, host, client
+                                               //       switch/case on $name would allow us to know what we're dealing with
 
             // Data cells
             foreach($data as $cell) {
@@ -322,6 +324,7 @@ class SocialAction extends Action
         }
 
         // Summary
+		$this->elementStart('div', array('class' => 'sa-summary'));
         $this->element('h3', null, 'Summary');
         $this->element('p', array('class' => 'summary'), 'During this time, you:');
         $this->elementStart('ul', array('class' => 'summary'));
@@ -359,6 +362,7 @@ class SocialAction extends Action
         $this->elementEnd('li');        
         
         $this->elementEnd('ul');
+		$this->elementEnd('div');
 
         // Graphs
         foreach($this->sa->graphs as $title => $graph) {
