@@ -72,18 +72,30 @@ class SocialAnalyticsPlugin extends Plugin
         return true;
     }
 
+    function isSocial() {
+        $social  = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $current = parse_url(common_local_url('social'));
+        $current = $current['host'] . $current['path'];
+
+        return ($social === $current);
+    }
+
     function onEndShowScripts($action)
     {
-        $action->script('http://www.openlayers.org/api/OpenLayers.js');
-        $action->script($this->path('js/sa.js'));
+        if($this->isSocial()) {
+            $action->script('http://www.openlayers.org/api/OpenLayers.js');
+            $action->script($this->path('js/sa.js'));
+        }
         return true;
     }
 
     function onEndShowStyles($action)
     {
-        $action->cssLink($this->path('css/visualize-light.css'));
-        $action->cssLink($this->path('css/visualize.css'));
-        $action->cssLink($this->path('css/sa.css'));
+        if($this->isSocial()) {
+            $action->cssLink($this->path('css/visualize-light.css'));
+            $action->cssLink($this->path('css/visualize.css'));
+            $action->cssLink($this->path('css/sa.css'));
+        }
         return true;
     }    
 
