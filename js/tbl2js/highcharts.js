@@ -3,7 +3,7 @@
 
     /* Generating graphs */
     SA.graphLibs['highcharts.js'] = function () {
-        /* Trends chart */
+        // Trends chart
         var _data = [],
             i,
             len,
@@ -11,24 +11,24 @@
             trendsHeaders = [],
             tmp  = {};
 
-        $('#content_inner').attr('class', 'sa_highcharts');
+        $('#content_inner').attr('class', 'sa-hcharts');
 
-        $('.social_wrapper').each(function (i) { // FIXME: This is crap. Revise.
+        $('.sa-wrap').each(function (i) { // FIXME: This is crap. Revise.
             if (i % 2 === 0) {
-                $(this).addClass('sa_right');
+                $(this).addClass('sa-r');
             } else {
-                $(this).addClass('sa_left');
+                $(this).addClass('sa-l');
             }
         });
 
         // Fetch headings and init sub-arrays
-        $('#trends_table thead th').each(function (j) {
+        $('#sa-trends thead th').each(function (j) {
             trendsHeaders.push($(this).text());
             trends[j] = [];
         });
 
         // Parse table
-        $('#trends_table tbody tr').each(function (i) {
+        $('#sa-trends tbody tr').each(function (i) {
             $(this).find('td').each(function (j) {
                 trends[j].push([i, parseInt($(this).text(), 10)]);
             });
@@ -45,7 +45,7 @@
         // Draw line chart
         new Highcharts.Chart({
             chart: {
-                renderTo: $('.trends_graph')[0]
+                renderTo: $('.sa-trends-graph')[0]
             },
             title: {
                 text: ''
@@ -61,10 +61,10 @@
             }
         });
 
-        /* Pie charts */
-        $('.social_pie').each(function () {
+        // Pie charts
+        $('.sa-pie').each(function () {
             var $this = $(this),
-                graphContainer = $('.' + $this.attr('id').replace(/_table$/, '_graph'));
+                graphContainer = $('.' + $(this).attr('id') + '-graph');
 
             $this.find('tbody tr').each(function (i) {
                 var $this = $(this);

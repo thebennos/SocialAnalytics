@@ -5,7 +5,7 @@
     SA = (typeof window.SA !== 'undefined' && window.SA !== null) ? window.SA : {};
 
     _SA = {
-        map: new OpenLayers.Map('mapdiv'),
+        map: new OpenLayers.Map('sa-map'),
         bounds: new OpenLayers.Bounds(),
         lyrMarkers: new OpenLayers.Layer.Markers('Markers'),
         currentPopup: null,
@@ -40,8 +40,8 @@
             }
 
             // JS Switcher
-            $('#social_js_switcher').change(function () {
-                $('.social_graph').html('');
+            $('#sa-js-switch').change(function () {
+                $('.sa-graph').html('');
 
                 // We've never loaded this lib.
                 if (SA.graphLibs[$(this).val()] === undefined) {
@@ -54,23 +54,23 @@
                     SA.graphLibs[$(this).val()]();
                 }
             });
-            $('#social_js_switcher').trigger('change'); // Create the graphs for the 1st time (with default selected lib)
+            $('#sa-js-switch').trigger('change'); // Create the graphs for the 1st time (with default selected lib)
 
             // Show/hide custom date form
-            $('.social_nav_top .cust a').click(function (e) {
+            $('.sa-nav-t .sa-cust a').click(function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                $('.social_date_picker_top').fadeToggle();
+                $('.sa-picker-t').fadeToggle();
             });
 
-            $('.social_nav_bottom .cust a').click(function (e) {
+            $('.sa-nav-b .sa-cust a').click(function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                $('.social_date_picker_bottom').fadeToggle();
+                $('.sa-picker-b').fadeToggle();
             });
 
             // Bind datepickers
-            $('#social_start_date_top, #social_end_date_top, #social_start_date_bottom, #social_end_date_bottom').datepicker({
+            $('#sa-date-s-t, #sa-date-e-t, #sa-date-s-b, #sa-date-e-b').datepicker({
                 showOn: 'button',
                 buttonImage: snRoot + 'plugins/SocialAnalytics/images/calendar.png',
                 buttonImageOnly: true,
@@ -112,10 +112,10 @@
                     html += '</div>';
 
                     elm.html(html)
-                        .addClass('ajaxed notice');
+                        .addClass('sa-ajaxed notice');
 
                     // If we have all the notices, place them in the dialog
-                    if (elm.siblings('li').not('.ajaxed').length === 0) {
+                    if (elm.siblings('li').not('.sa-ajaxed').length === 0) {
                         $dial.html(elm.closest('ul'));
 
                         // Reposition
@@ -125,7 +125,7 @@
             }
 
             // Wrap <td> numbers in a link that will show <td> details when clicked on.
-            $('.social_table td').each(function () {
+            $('.sa-table td').each(function () {
                 var $this   = $(this),
                     caption = $this.closest('table').children('caption').text(),
                     content = $this.children('ul'),
@@ -142,7 +142,7 @@
                     var $this = $(this);
 
                     // If we already fetched the data, just show it
-                    if ($this.hasClass('ajaxed')) {
+                    if ($this.hasClass('sa-ajaxed')) {
                         $dial.html(content)
                             .dialog('option', 'title', caption)
                             .dialog('open');
@@ -168,7 +168,7 @@
                                     success: callback($this),
                                     error: function (xhr, txt, err) {
                                         // Fall back to non-rich data
-                                        $this.addClass('ajaxed');
+                                        $this.addClass('sa-ajaxed');
                                         $dial.html(content)
                                             .dialog('option', 'title', caption)
                                             .dialog('open');
@@ -187,7 +187,7 @@
             });
 
             // Show/hide data tables
-            $('.toggleTable').click(function (e) {
+            $('.sa-toggle').click(function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
