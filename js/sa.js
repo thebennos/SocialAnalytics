@@ -1,5 +1,5 @@
 (function ($) {
-	$('html').addClass('sa-js');
+	$('#wrap').addClass('sa-js');
 
     var SA, _SA;
     SA = (typeof window.SA !== 'undefined' && window.SA !== null) ? window.SA : {};

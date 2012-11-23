@@ -1,88 +1,88 @@
 /* SN modification (2-col page) */
-#social #content {width: 758px;}
-#social #content_wrapper {border-right: none;}
-#social #aside_primary {display: none;}
-#social #aside_primary_wrapper {background-color: transparent;}
-#social .input_forms {display: none;}
-#social p.summary {margin: 0;}
-#social ul.summary {margin: 0 0 12px 20px;}
-#social .notice .entry-title {margin: 2px 7px 0 59px; min-height: 35px;}
-#social .notice .author .photo {display: inline; float: none; left: 0; margin-right: 11px; position: absolute; top: 7px;}
+body#social #content {width: 758px;}
+body#social #content_wrapper {border-right: none;}
+body#social #aside_primary {display: none;}
+body#social #aside_primary_wrapper {background-color: transparent;}
+body#social .input_forms {display: none;}
+body#social p.summary {margin: 0;}
+body#social ul.summary {margin: 0 0 12px 20px;}
+body#social .notice .entry-title {margin: 2px 7px 0 59px; min-height: 35px;}
+body#social .notice .author .photo {display: inline; float: none; left: 0; margin-right: 11px; position: absolute; top: 7px;}
 
 /* Summary */
-#social ul.summary {list-style-type: none; margin: 0; padding: 0;}
-#social .summary li {width: 40%; margin-right: 10px; float: left; border: 1px solid #CCC; border-radius: 10px; min-height: 31px; padding: 5px 5px 5px 45px; margin-bottom: 10px;}
-#social .summary .posts {background: url(../images/comment.png) no-repeat 5px 5px;}
-#social .summary .replies {background: url(../images/quote.png) no-repeat 5px 5px;}
-#social .summary .favs {background: url(../images/heart.png) no-repeat 5px 5px;}
-#social .summary .bookmarks {background: url(../images/book.png) no-repeat 5px 5px;}
-#social .summary .follow {background: url(../images/user.png) no-repeat 5px 5px;}
-.sa-summary {clear: both;}
+body#social ul.summary {list-style-type: none; margin: 0; padding: 0;}
+body#social .summary li {width: 40%; margin-right: 10px; float: left; border: 1px solid #CCC; border-radius: 10px; min-height: 31px; padding: 5px 5px 5px 45px; margin-bottom: 10px;}
+body#social .summary .posts {background: url(../images/comment.png) no-repeat 5px 5px;}
+body#social .summary .replies {background: url(../images/quote.png) no-repeat 5px 5px;}
+body#social .summary .favs {background: url(../images/heart.png) no-repeat 5px 5px;}
+body#social .summary .bookmarks {background: url(../images/book.png) no-repeat 5px 5px;}
+body#social .summary .follow {background: url(../images/user.png) no-repeat 5px 5px;}
+body#social .sa-summary {clear: both;}
 
 /* Data tables */
-.social_table caption {display: none;}
-.social_table {width: 100%;}
-.social_table, .social_table th, .social_table td {border: 1px solid #333;}
-.social_table th, .social_table td {padding: 3px;}
-.social_table td {text-align: right;}
+body#social .social_table caption {display: none;}
+body#social .social_table {width: 100%;}
+body#social .social_table, .social_table th, .social_table td {border: 1px solid #333;}
+body#social .social_table th, .social_table td {padding: 3px;}
+body#social .social_table td {text-align: right;}
 
 /* td details */
-.ui-dialog ul {list-style-type: none; text-align: left;}
-.ui-dialog ul li {border-bottom: 1px solid #CCC; padding: 3px 0;}
-.social_table td ul {display: none;}
-.social_table td a {font-weight: bold;}
-.sa-processing {background: url(../images/icon_processing.gif) no-repeat center center; width: 100%; height: 16px;}
+body#social .ui-dialog ul {list-style-type: none; text-align: left;}
+body#social .ui-dialog ul li {border-bottom: 1px solid #CCC; padding: 3px 0;}
+body#social .social_table td ul {display: none;}
+body#social .social_table td a {font-weight: bold;}
+body#social .sa-processing {background: url(../images/icon_processing.gif) no-repeat center center; width: 100%; height: 16px;}
 
 /* Date picker */
-.social_date_picker {background-color: #FFF; display: none; position: absolute; top: 100%; left: 0; text-align: left; border: 1px solid #000; border-radius: 5px; padding: 10px; margin-top: 5px; z-index: 999;}
-.social_date_picker label {display: block;}
-.social_nav_bottom .social_date_picker {bottom: 100%; top: auto;}
+body#social .social_date_picker {background-color: #FFF; display: none; position: absolute; top: 100%; left: 0; text-align: left; border: 1px solid #000; border-radius: 5px; padding: 10px; margin-top: 5px; z-index: 999;}
+body#social .social_date_picker label {display: block;}
+body#social .social_nav_bottom .social_date_picker {bottom: 100%; top: auto;}
 #social_start_date, #social_end_date {margin-bottom: 5px;}
 #social_submit_date {margin: auto; display: block;}
-#social .ui-datepicker-trigger {margin-left: 5px;}
+body#social .ui-datepicker-trigger {margin-left: 5px;}
 #social_submit_date {margin-top: 5px;}
 
 /* Date Navitation */
-.social_nav {margin-bottom: 5px; padding: 0; list-style-type: none; height: 22px;}
-.social_nav .prev {float: left; width: 33%;}
-.social_nav .cust {float: left; text-align: center; width: 33%; position: relative;}
-.social_nav .next {float: right; text-align: right; width: 33%;}
-.social_nav a {background-image: url(/theme/base/images/icons/icons-01.gif); background-repeat: no-repeat; padding-top: 9px;}
-.social_nav .next a {background-position: 114% -253px; padding-right: 25px;}
-.social_nav .cust a {background: none;}
-.social_nav .prev a {background-position: 0 -188px; padding-left: 25px;}
+body#social .social_nav {margin-bottom: 5px; padding: 0; list-style-type: none; height: 22px;}
+body#social .social_nav .prev {float: left; width: 33%;}
+body#social .social_nav .cust {float: left; text-align: center; width: 33%; position: relative;}
+body#social .social_nav .next {float: right; text-align: right; width: 33%;}
+body#social .social_nav a {background-image: url(/theme/base/images/icons/icons-01.gif); background-repeat: no-repeat; padding-top: 9px;}
+body#social .social_nav .next a {background-position: 114% -253px; padding-right: 25px;}
+body#social .social_nav .cust a {background: none;}
+body#social .social_nav .prev a {background-position: 0 -188px; padding-left: 25px;}
 
 /* JS Switcher */
 #social_js_switcher {float: right; margin: 10px 0 0 0;}
 
 /* Map */
-#mapdiv {height: 300px; margin: 0 30px 12px 30px !important; width: 700px;}
-div.olControlAttribution {bottom: 0;}
+body#social #mapdiv {height: 300px; margin: 0 30px 12px 30px !important; width: 700px;}
+body#social div.olControlAttribution {bottom: 0;}
 
 /** CSS for JS backends **/
 /* Visualize */
-.sa_visualize .visualize-labels-x {display: none;}
-body .sa_visualize .visualize {margin: 0 30px 10px 30px; padding: 0;}
-.sa_visualize .visualize-info div.visualize-title {display: none;}
-.sa_visualize div.social_graph ul.visualize-key li {float: none;}
-.sa_visualize div.trends_graph ul.visualize-key li {float: left;}
-.sa_visualize div.trends_graph ul.visualize-key {width: 100%;}
-.sa_visualize div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
+body#social .sa_visualize .visualize-labels-x {display: none;}
+body#social .sa_visualize .visualize {margin: 0 30px 10px 30px; padding: 0;}
+body#social .sa_visualize .visualize-info div.visualize-title {display: none;}
+body#social .sa_visualize div.social_graph ul.visualize-key li {float: none;}
+body#social .sa_visualize div.trends_graph ul.visualize-key li {float: left;}
+body#social .sa_visualize div.trends_graph ul.visualize-key {width: 100%;}
+body#social .sa_visualize div.visualize-pie ul.visualize-labels {top: 2px; left: 7px;}
 
 /* flotr2 & highcharts */
-.sa_flotr2 .social_wrapper, .sa_highcharts .social_wrapper {float: left; margin-right: 10px;}
-.sa_flotr2 .social_graph, .sa_highcharts .social_graph {width: 350px; height: 300px;}
-.sa_flotr2 .trends_graph, .sa_highcharts .trends_graph {width: 758px; float: none;}
-.sa_flotr2 .social_nav_bottom, .sa_highcharts .social_nav_bottom {padding-top: 10px; clear: both;}
-.sa_flotr2 .sa_left, .sa_highcharts .sa_left {clear: left;}
-.sa_flotr2 .social_map_wrapper, .sa_highcharts .social_map_wrapper {clear: left;}
+body#social .sa_flotr2 .social_wrapper, body#social .sa_highcharts .social_wrapper {float: left; margin-right: 10px;}
+body#social .sa_flotr2 .social_graph, body#social .sa_highcharts .social_graph {width: 350px; height: 300px;}
+body#social .sa_flotr2 .trends_graph, body#social .sa_highcharts .trends_graph {width: 758px; float: none;}
+body#social .sa_flotr2 .social_nav_bottom, body#social .sa_highcharts .social_nav_bottom {padding-top: 10px; clear: both;}
+body#social .sa_flotr2 .sa_left, body#social .sa_highcharts .sa_left {clear: left;}
+body#social .sa_flotr2 .social_map_wrapper, body#social .sa_highcharts .social_map_wrapper {clear: left;}
 
 /* JS disabled */
-.social_map_wrapper, .toggleTable, #social_js_switcher {display: none;}
-.social_date_picker {display: block; position: static;}
-.social_table {display: table;}
+body#social .social_map_wrapper, body#social .toggleTable, body#social #social_js_switcher {display: none;}
+body#social .social_date_picker {display: block; position: static;}
+body#social .social_table {display: table;}
 
 /* JS enabled */
-.sa-js .toggleTable {display: inline;}
-.sa-js .social_map_wrapper, .sa-js #social_js_switcher {display: block;}
-.sa-js .social_date_picker, .sa-js .social_table {display: none;}
+body#social .sa-js .toggleTable {display: inline;}
+body#social .sa-js .social_map_wrapper, body#social .sa-js #social_js_switcher {display: block;}
+body#social .sa-js .social_date_picker, body#social .sa-js .social_table {display: none;}
