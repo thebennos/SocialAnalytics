@@ -74,6 +74,7 @@ class SocialAnalyticsPlugin extends Plugin
 
     function isSocial() {
         $social  = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $social  = preg_replace('/\?.*/', '', $social); // Remove query from url
         $current = parse_url(common_local_url('social'));
         $current = $current['host'] . $current['path'];
 
