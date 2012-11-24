@@ -210,9 +210,9 @@ class SocialAction extends Action
             if($nb_rows > 9) { // For other tables, limit the rows to 9 and shove everything else in 'other'
                 $other = array();
                 $keys = array_keys($rows);
-                for($i=9; $i<$nb_rows; $i++) {
+                for($i=9; $i<$nb_rows; $i++) { // FIXME: can this be more cryptic...
                     $key = array_keys($rows[$keys[$i]]);
-                    $other[$key[0]] += count($rows[$keys[$i]][$key[0]]); // Sum of items in 'other'
+                    $other[$key[0]] = array_merge((array)($other[$key[0]]), $rows[$keys[$i]][$key[0]]);
                     unset($rows[$keys[$i]]); // Remove original item from array
                 }
                 $rows['other'] = $other; // Add 'other' to array
