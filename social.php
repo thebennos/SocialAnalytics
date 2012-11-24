@@ -346,7 +346,7 @@ class SocialAction extends Action
         $this->elementEnd('li');
 
         $this->elementStart('li', array('class' => 'sa-favs'));
-        $this->text('favorited ' . $this->sa->ttl_faves . ' notices');
+        $this->text('favored ' . $this->sa->ttl_faves . ' notices');
         $this->elementEnd('li');
 
         $this->elementStart('li', array('class' => 'sa-favs'));
