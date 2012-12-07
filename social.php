@@ -364,9 +364,14 @@ class SocialAction extends Action
         $this->elementEnd('ul');
 		$this->elementEnd('div');
 
-        // Graphs
-        foreach($this->sa->graphs as $title => $graph) {
-                $this->printGraph($title, $graph);
+        $ttl = $this->sa->ttl_notices + $this->sa->ttl_bookmarks + $this->sa->ttl_following + $this->sa->ttl_followers + $this->sa->ttl_faves + $this->sa->ttl_o_faved + $this->sa->ttl_mentions + $this->sa->ttl_replies;
+
+        // Only print graphs if we have some data
+        if($ttl !== 0) {
+            // Graphs
+            foreach($this->sa->graphs as $title => $graph) {
+                    $this->printGraph($title, $graph);
+            }
         }
 
         // If we have map data

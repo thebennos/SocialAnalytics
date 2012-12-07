@@ -22,6 +22,8 @@
                     width: 700
                 }).css('max-height', SA.viewHeight);
 
+            $('#content').css('min-height', $('#aside_primary_wrapper').outerHeight());
+
             // FIXME: Ugly fix to figure out if we have map data or not.
             if (typeof sa_following_coords !== 'undefined' || typeof sa_followers_coords !== 'undefined') {
                 this.map.addLayer(new OpenLayers.Layer.OSM());

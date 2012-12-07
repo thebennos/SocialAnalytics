@@ -11,6 +11,7 @@ body#social .notice .entry-title {margin: 2px 7px 0 59px; min-height: 35px;}
 body#social .notice .author .photo {display: inline; float: none; left: 0; margin-right: 11px; position: absolute; top: 7px;}
 
 /* Summary */
+body#social .sa-summary {clear: both; overflow: hidden;}
 body#social .sa-summary p, body#social .sa-summary ul {list-style-type: none; margin: 0; padding: 0;}
 body#social .sa-summary li {width: 40%; margin-right: 10px; float: left; border: 1px solid #CCC; border-radius: 10px; min-height: 31px; padding: 5px 5px 5px 45px; margin-bottom: 10px;}
 body#social .sa-summary .sa-posts {background: url(../images/comment.png) no-repeat 5px 5px;}
@@ -80,7 +81,6 @@ body#social .sa-flotr2 .sa-map-wrap, body#social .sa-hcharts .sa-map-wrap {clear
 body#social .sa-map-wrap, body#social .sa-toggle, body#social #sa-js-switch {display: none;}
 body#social .sa-picker {display: block; position: static;}
 body#social .sa-table {display: table;}
-body#social .sa-summary {clear: both;}
 
 /* JS enabled */
 body#social .sa-js .sa-toggle {display: inline;}
